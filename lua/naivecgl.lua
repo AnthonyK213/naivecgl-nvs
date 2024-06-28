@@ -11,7 +11,7 @@ local ffi = require("ffi")
 ---@type ffi.namespace*
 naivecgl.NS = nil
 
-local function getDylibPath(theName)
+local function get_dylib_path(theName)
   if jit.os == "Windows" then
     return theName .. ".dll"
   elseif jit.os == "Linux" then
@@ -389,7 +389,7 @@ Naive_Code_t Naive_Body_boolean(
 );
 ]]
 
-  self.NS = ffi.load(getDylibPath("NaiveCGL"))
+  self.NS = ffi.load(get_dylib_path("NaiveCGL"))
 
   if not self.NS then
     error("Failed to initialize NaiveCGL")
@@ -611,7 +611,7 @@ end
 
 ---
 ---@param theType table|string
-local function declareArray(theType)
+local function array_instantiate(theType)
   local arr = { myType = theType }
   setmetatable(arr, naivecgl.Naive_Array)
   arr.__index = arr
@@ -619,16 +619,16 @@ local function declareArray(theType)
 end
 
 ---@class naivecgl.Naive_Int32Array : naivecgl.Naive_Array<integer>
-naivecgl.Naive_Int32Array = declareArray("int")
+naivecgl.Naive_Int32Array = array_instantiate("int")
 
 ---@class naivecgl.Naive_DoubleArray : naivecgl.Naive_Array<number>
-naivecgl.Naive_DoubleArray = declareArray("double")
+naivecgl.Naive_DoubleArray = array_instantiate("double")
 
 ---@class naivecgl.Naive_XYArray : naivecgl.Naive_Array<naivecgl.Naive_XY>
-naivecgl.Naive_XYArray = declareArray(naivecgl.Naive_XY)
+naivecgl.Naive_XYArray = array_instantiate(naivecgl.Naive_XY)
 
 ---@class naivecgl.Naive_XYZArray : naivecgl.Naive_Array<naivecgl.Naive_XYZ>
-naivecgl.Naive_XYZArray = declareArray(naivecgl.Naive_XYZ)
+naivecgl.Naive_XYZArray = array_instantiate(naivecgl.Naive_XYZ)
 
 --------------------------------------------------------------------------------
 --                            Naive_NurbsCurve                                --
@@ -830,7 +830,7 @@ naivecgl.Naive_NurbsSurface.__index = naivecgl.Naive_NurbsSurface
 ---@return integer
 ---@return integer
 ---@return T[]
-local function flattenArray2(theArr2)
+local function flatten_array2(theArr2)
   if #theArr2 == 0 then
     return 0, 0, {}
   end
@@ -866,10 +866,10 @@ function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
                                          theUKnots, theVKnots,
                                          theUMults, theVMults,
                                          theUDegree, theVDegree)
-  local nbUP, nbVP, aFlatPoles = flattenArray2(thePoles)
+  local nbUP, nbVP, aFlatPoles = flatten_array2(thePoles)
   local aPoles = naivecgl.Naive_XYZArray:new(aFlatPoles)
 
-  local nbUW, nbVW, aFlatWeights = flattenArray2(theWeights)
+  local nbUW, nbVW, aFlatWeights = flatten_array2(theWeights)
   local aWeights = naivecgl.Naive_DoubleArray:new(aFlatWeights)
 
   local aUKnots = naivecgl.Naive_DoubleArray:new(theUKnots)
