@@ -11,14 +11,28 @@ local ffi = require("ffi")
 ---@type ffi.namespace*
 naivecgl.NS = nil
 
+---Get absolute/relative path of the library.
+---@param theName string The base name of the library.
+---@return string
 local function get_dylib_path(theName)
+  local aPath
+
   if jit.os == "Windows" then
-    return theName .. ".dll"
+    aPath = theName .. ".dll"
   elseif jit.os == "Linux" then
-    return "lib" .. theName .. ".so"
+    aPath = "lib" .. theName .. ".so"
   else
     error("Unsupported system!")
   end
+
+  if Naivis then
+    local ext = Naivis.NaiveApp.ExtensionMgr:Find("naivecgl-nvs")
+    if ext and ext:IsValid() then
+      aPath = ext:Path() .. "/lib/" .. aPath
+    end
+  end
+
+  return aPath
 end
 
 ---@private
