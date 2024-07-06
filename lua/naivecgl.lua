@@ -52,7 +52,8 @@ typedef enum {
   Naive_Code_initialized = 1000,
   Naive_Code_null_arg_address = 1500,
   Naive_Code_invalid_value,
-  Naive_Code_invalid_handle,
+  Naive_Code_invalid_object,
+  Naive_Code_invalid_tag,
   Naive_Code_no_intersection,
   Naive_Code_points_are_collinear = 2000,
   Naive_Code_points_are_coplanar,
@@ -71,28 +72,32 @@ typedef enum {
   Naive_Code_invalid_mults,
 } Naive_Code;
 
+/* Naive_Code_t */
+
 typedef int Naive_Code_t;
 
 /* TYPEDEFS */
 
-typedef void *Naive_Body_t;
-typedef void *Naive_ConvexHull2D_t;
-typedef void *Naive_Curve_t;
-typedef void *Naive_Edge_t;
-typedef void *Naive_EnclosingDisc_t;
-typedef void *Naive_Face_t;
-typedef void *Naive_Fin_t;
-typedef void *Naive_Geometry_t;
-typedef void *Naive_Line_t;
-typedef void *Naive_Loop_t;
-typedef void *Naive_NurbsCurve_t;
-typedef void *Naive_NurbsSurface_t;
-typedef void *Naive_Plane_t;
-typedef void *Naive_Poly_t;
-typedef void *Naive_Shell_t;
-typedef void *Naive_Surface_t;
-typedef void *Naive_Object_t;
-typedef void *Naive_Vertex_t;
+typedef int Naive_Body_t;
+typedef int Naive_ConvexHull2D_t;
+typedef int Naive_Curve_t;
+typedef int Naive_Edge_t;
+typedef int Naive_EnclosingDisc_t;
+typedef int Naive_Face_t;
+typedef int Naive_Fin_t;
+typedef int Naive_Geometry_t;
+typedef int Naive_Line_t;
+typedef int Naive_Loop_t;
+typedef int Naive_NurbsCurve_t;
+typedef int Naive_NurbsSurface_t;
+typedef int Naive_Object_t;
+typedef int Naive_Plane_t;
+typedef int Naive_Poly_t;
+typedef int Naive_Shell_t;
+typedef int Naive_Solid_t;
+typedef int Naive_Surface_t;
+typedef int Naive_Transform3d_t;
+typedef int Naive_Vertex_t;
 
 /* Naive_Logical_t */
 
@@ -138,6 +143,12 @@ typedef struct Naive_Triangle_s {
   int n0, n1, n2;
 } Naive_Triangle_t;
 
+/* Naive_Transform3d_sf_t */
+
+typedef struct Naive_Transform3d_sf_s {
+  double matrix[3][4];
+} Naive_Transform3d_sf_t;
+
 /* Naive_Axis1_sf_t */
 
 typedef struct Naive_Axis1_sf_s {
@@ -153,17 +164,82 @@ typedef struct Naive_Axis2_sf_s {
   Naive_Vector3d_t ref_direction;
 } Naive_Axis2_sf_t;
 
+/* Naive_Axis2d_sf_t */
+
+typedef struct Naive_Axis2d_sf_s {
+  Naive_Point2d_t location;
+  Naive_Vector2d_t axis;
+} Naive_Axis2d_sf_t;
+
+/* Naive_Axis22d_sf_t */
+
+typedef struct Naive_Axis22d_sf_s {
+  Naive_Point2d_t location;
+  Naive_Vector2d_t x_axis;
+  Naive_Vector2d_t y_axis;
+} Naive_Axis22d_sf_t;
+
 /* Naive_Line_sf_t */
 
 typedef struct Naive_Line_sf_s {
   Naive_Axis1_sf_t basis_set;
 } Naive_Line_sf_t;
 
+/* Naive_Circle_sf_t */
+
+typedef struct Naive_Circle_sf_s {
+  Naive_Axis2_sf_t basis_set;
+  double radius;
+} Naive_Circle_sf_t;
+
 /* Naive_Plane_sf_t */
 
 typedef struct Naive_Plane_sf_s {
   Naive_Axis2_sf_t basis_set;
 } Naive_Plane_sf_t;
+
+/* Naive_Line2d_sf_t */
+
+typedef struct Naive_Line2d_sf_s {
+  Naive_Axis2d_sf_t basis_set;
+} Naive_Line2d_sf_t;
+
+/* Naive_Circle2d_sf_t */
+
+typedef struct Naive_Circle2d_sf_s {
+  Naive_Axis22d_sf_t basis_set;
+  double radius;
+} Naive_Circle2d_sf_t;
+
+/* Naive_Class */
+
+typedef enum {
+  Naive_Class_body = 0,
+  Naive_Class_solid,
+  Naive_Class_shell,
+  Naive_Class_face,
+  Naive_Class_loop,
+  Naive_Class_fin,
+  Naive_Class_edge,
+  Naive_Class_vertex,
+} Naive_Class;
+
+/* Naive_Class_t */
+
+typedef int Naive_Class_t;
+
+/* Naive_Orientation */
+
+typedef enum {
+  Naive_Orientation_forward_c = 0,
+  Naive_Orientation_reversed_c,
+  Naive_Orientation_internal_c,
+  Naive_Orientation_external_c,
+} Naive_Orientation;
+
+/* Naive_Orientation_t */
+
+typedef int Naive_Orientation_t;
 
 /* Naive_Algorithm */
 
@@ -174,7 +250,21 @@ typedef enum {
   Naive_Algorithm_divide_and_conquer,
 } Naive_Algorithm;
 
+/* Naive_Algorithm_t */
+
 typedef int Naive_Algorithm_t;
+
+/* Naive_Loop_type */
+
+typedef enum {
+  Naive_Loop_type_vertex_c = 0,
+  Naive_Loop_type_outer_c = 0,
+  Naive_Loop_type_inner_c = 0,
+} Naive_Loop_type;
+
+/* Naive_Loop_type_t */
+
+typedef int Naive_Loop_type_t;
 
 /* Naive_boolean_function */
 
@@ -183,6 +273,8 @@ typedef enum {
   Naive_boolean_subtract_c,
   Naive_boolean_unite_c,
 } Naive_boolean_function;
+
+/* Naive_boolean_function_t */
 
 typedef int Naive_boolean_function_t;
 
@@ -197,47 +289,46 @@ typedef struct Naive_Body_boolean_o_s {
   ffi.cdef [[
 /* Naive_Object */
 
-Naive_Code_t Naive_Object_free(Naive_Object_t /* transient */);
+Naive_Code_t Naive_Object_free(Naive_Object_t /* object */);
 
 /* Naive_Geometry */
 
-Naive_Code_t
-Naive_Geometry_is_valid(const Naive_Geometry_t /* geometry */,
-                        Naive_Logical_t *const /* is_valid */);
+Naive_Code_t Naive_Geometry_is_valid(
+    Naive_Geometry_t /* geometry */, Naive_Logical_t *const /* is_valid */);
 
 Naive_Code_t Naive_Geometry_clone(
-    const Naive_Geometry_t /* geometry */, Naive_Geometry_t *const /* clone */);
+    Naive_Geometry_t /* geometry */, Naive_Geometry_t *const /* clone */);
 
 /* Naive_Curve */
 
 Naive_Code_t Naive_Curve_ask_bound(
-    const Naive_Curve_t /* curve */, Naive_Interval_t *const /* bound */);
+    Naive_Curve_t /* curve */, Naive_Interval_t *const /* bound */);
 
 Naive_Code_t
-Naive_Curve_evaluate(const Naive_Curve_t /* curve */, const double /* t */,
+Naive_Curve_evaluate(Naive_Curve_t /* curve */, const double /* t */,
                      const int /* n_derivative */, int *const /* n_result */,
                      Naive_Vector3d_t *const /* result */);
 
 Naive_Code_t
-Naive_Curve_curvature_at(const Naive_Curve_t /* curve */, const double /* t */,
+Naive_Curve_curvature_at(Naive_Curve_t /* curve */, const double /* t */,
                          Naive_Vector3d_t *const /* curvature */);
 
 /* Naive_Surface */
 
 Naive_Code_t Naive_Surface_evaluate(
-    const Naive_Surface_t /* surface */, const double /* u */,
-    const double /* v */, const int /* n_derivative */,
-    int *const /* n_result */, Naive_Vector3d_t *const /* result */);
+    Naive_Surface_t /* surface */, const double /* u */, const double /* v */,
+    const int /* n_derivative */, int *const /* n_result */,
+    Naive_Vector3d_t *const /* result */);
 
 /* Naive_Plane */
 
 Naive_Code_t Naive_Plane_new(const Naive_Plane_sf_t * /* plane_sf */,
                                        Naive_Plane_t *const /* plane */);
 
-Naive_Code_t Naive_Plane_ask(const Naive_Plane_t /* plane */,
+Naive_Code_t Naive_Plane_ask(Naive_Plane_t /* plane */,
                                        Naive_Plane_sf_t *const /* plane_sf */);
 
-Naive_Code_t Naive_Plane_distance(const Naive_Plane_t /* plane */,
+Naive_Code_t Naive_Plane_distance(Naive_Plane_t /* plane */,
                                             const Naive_Point3d_t * /* point */,
                                             double *const /* distance */);
 
@@ -256,22 +347,22 @@ Naive_Code_t Naive_NurbsCurve_new(
     Naive_NurbsCurve_t *const /* nurbs_curve */);
 
 Naive_Code_t Naive_NurbsCurve_ask_degree(
-    const Naive_NurbsCurve_t /* nurbs_curve */, int *const /* degree */);
+    Naive_NurbsCurve_t /* nurbs_curve */, int *const /* degree */);
 
 Naive_Code_t Naive_NurbsCurve_ask_poles(
-    const Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_poles */,
+    Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_poles */,
     Naive_Point3d_t *const /* poles */);
 
 Naive_Code_t Naive_NurbsCurve_ask_weights(
-    const Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_weights */,
+    Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_weights */,
     double *const /* weights */);
 
 Naive_Code_t
-Naive_NurbsCurve_ask_knots(const Naive_NurbsCurve_t /* nurbs_curve */,
+Naive_NurbsCurve_ask_knots(Naive_NurbsCurve_t /* nurbs_curve */,
                            int *const /* n_knots */, double *const /* knots */);
 
 Naive_Code_t
-Naive_NurbsCurve_ask_mults(const Naive_NurbsCurve_t /* nurbs_curve */,
+Naive_NurbsCurve_ask_mults(Naive_NurbsCurve_t /* nurbs_curve */,
                            int *const /* n_mults */, int *const /* mults */);
 
 Naive_Code_t Naive_NurbsCurve_increase_degree(
@@ -304,7 +395,7 @@ Naive_Code_t Naive_NurbsSurface_new(
     Naive_NurbsSurface_t *const /* nurbs_surface */);
 
 Naive_Code_t Naive_NurbsSurface_ask_degree(
-    const Naive_NurbsSurface_t /* nurbs_surface */, int *const /* degree_u */,
+    Naive_NurbsSurface_t /* nurbs_surface */, int *const /* degree_u */,
     int *const /* degree_v */);
 
 /* Naive_Poly */
@@ -316,18 +407,18 @@ Naive_Code_t Naive_Poly_new(const int /* n_vertices */,
                                       Naive_Poly_t *const /* poly */);
 
 Naive_Code_t Naive_Poly_is_valid(
-    const Naive_Poly_t /* poly */, Naive_Logical_t *const /* is_valid */);
+    Naive_Poly_t /* poly */, Naive_Logical_t *const /* is_valid */);
 
-Naive_Code_t Naive_Poly_clone(const Naive_Poly_t /* poly */,
+Naive_Code_t Naive_Poly_clone(Naive_Poly_t /* poly */,
                                         Naive_Poly_t *const /* clone */);
 
-Naive_Code_t Naive_Poly_ask_vertices(
-    const Naive_Poly_t /* poly */, int *const /* n_vertices */,
-    Naive_Point3d_t *const /* vertices */);
+Naive_Code_t
+Naive_Poly_ask_vertices(Naive_Poly_t /* poly */, int *const /* n_vertices */,
+                        Naive_Point3d_t *const /* vertices */);
 
-Naive_Code_t Naive_Poly_ask_triangles(
-    const Naive_Poly_t /* poly */, int *const /* n_triangles */,
-    Naive_Triangle_t *const /* triangles */);
+Naive_Code_t
+Naive_Poly_ask_triangles(Naive_Poly_t /* poly */, int *const /* n_triangles */,
+                         Naive_Triangle_t *const /* triangles */);
 
 /* Naive_BndShape_ConvexHull2D */
 
@@ -347,8 +438,8 @@ Naive_Code_t Naive_BndShape_ConvexHull2D_add_point(
     Naive_Logical_t /* to_perform */);
 
 Naive_Code_t Naive_BndShape_ConvexHull2D_ask_result(
-    const Naive_ConvexHull2D_t /* covex_hull_2d */,
-    int *const /* n_convex_points */, int *const /* convex_indices */,
+    Naive_ConvexHull2D_t /* covex_hull_2d */, int *const /* n_convex_points */,
+    int *const /* convex_indices */,
     Naive_Point2d_t *const /* convex_points */);
 
 /* Naive_BndShape_EnclosingDisc */
@@ -361,7 +452,7 @@ Naive_Code_t Naive_BndShape_EnclosingDisc_rebuild(
     const Naive_Point2d_t * /* points */);
 
 Naive_Code_t Naive_BndShape_EnclosingDisc_ask_circle(
-    const Naive_EnclosingDisc_t /* enclosing_disc */,
+    Naive_EnclosingDisc_t /* enclosing_disc */,
     Naive_Point2d_t *const /* origin */, double *const /* radius */);
 
 /* Naive_Tessellation */
@@ -372,32 +463,38 @@ Naive_Code_t Naive_Tessellation_Sphere_tetrasphere(
 
 /* Naive_Body */
 
-Naive_Code_t Naive_Body_ask_edges(const Naive_Body_t /* body */,
+Naive_Code_t Naive_Body_ask_location(
+    Naive_Body_t /* body */, Naive_Transform3d_t *const /* location */);
+
+Naive_Code_t Naive_Body_ask_orientation(
+    Naive_Body_t /* body */, Naive_Orientation_t *const /* orientation */);
+
+Naive_Code_t Naive_Body_ask_edges(Naive_Body_t /* body */,
                                             int *const /* n_edges */,
                                             Naive_Edge_t *const /* edges */);
 
-Naive_Code_t Naive_Body_ask_faces(const Naive_Body_t /* body */,
+Naive_Code_t Naive_Body_ask_faces(Naive_Body_t /* body */,
                                             int *const /* n_faces */,
                                             Naive_Face_t *const /* faces */);
 
-Naive_Code_t Naive_Body_ask_fins(const Naive_Body_t /* body */,
+Naive_Code_t Naive_Body_ask_fins(Naive_Body_t /* body */,
                                            int *const /* n_fins */,
                                            Naive_Fin_t *const /* fins */);
 
-Naive_Code_t Naive_Body_ask_loops(const Naive_Body_t /* body */,
+Naive_Code_t Naive_Body_ask_loops(Naive_Body_t /* body */,
                                             int *const /* n_loops */,
                                             Naive_Loop_t *const /* loops */);
 
-Naive_Code_t Naive_Body_ask_shells(const Naive_Body_t /* body */,
+Naive_Code_t Naive_Body_ask_shells(Naive_Body_t /* body */,
                                              int *const /* n_shells */,
                                              Naive_Shell_t *const /* shells */);
 
-Naive_Code_t Naive_Body_ask_vertices(
-    const Naive_Body_t /* body */, int *const /* n_vertices */,
-    Naive_Vertex_t *const /* vertices */);
+Naive_Code_t
+Naive_Body_ask_vertices(Naive_Body_t /* body */, int *const /* n_vertices */,
+                        Naive_Vertex_t *const /* vertices */);
 
 Naive_Code_t Naive_Body_boolean(
-    const Naive_Body_t /* target */, const int /* n_tools */,
+    Naive_Body_t /* target */, const int /* n_tools */,
     const Naive_Body_t * /* tools */,
     const Naive_Body_boolean_o_t * /* options */
 );
@@ -675,8 +772,8 @@ function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults,
     theDegree, aH))
 
   local nurbsCurve = {
-    myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Object_free(theHandle)
+    myH = ffi.gc(aH, function(theHandle)
+      naivecgl.NS.Naive_Object_free(theHandle[0])
     end)
   }
   setmetatable(nurbsCurve, naivecgl.Naive_NurbsCurve)
@@ -687,7 +784,7 @@ end
 ---@return integer
 function naivecgl.Naive_NurbsCurve:Degree()
   local aDegree = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_degree(self.myH, aDegree))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_degree(self.myH[0], aDegree))
   return aDegree[0]
 end
 
@@ -695,7 +792,7 @@ end
 ---@return integer
 function naivecgl.Naive_NurbsCurve:NbPoles()
   local nbPoles = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH, nbPoles, nil))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH[0], nbPoles, nil))
   return nbPoles[0]
 end
 
@@ -703,9 +800,9 @@ end
 ---@return naivecgl.Naive_XYZArray
 function naivecgl.Naive_NurbsCurve:Poles()
   local nbPoles = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH, nbPoles, nil))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH[0], nbPoles, nil))
   local aP = ffi.new("Naive_Point3d_t[?]", nbPoles[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH, nbPoles, aP))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH[0], nbPoles, aP))
   return naivecgl.Naive_XYZArray:take(aP, nbPoles[0])
 end
 
@@ -713,9 +810,9 @@ end
 ---@return naivecgl.Naive_DoubleArray
 function naivecgl.Naive_NurbsCurve:Weights()
   local nbWeights = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH, nbWeights, nil))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH[0], nbWeights, nil))
   local aW = ffi.new("double[?]", nbWeights[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH, nbWeights, aW))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH[0], nbWeights, aW))
   return naivecgl.Naive_DoubleArray:take(aW, nbWeights[0])
 end
 
@@ -723,7 +820,7 @@ end
 ---@return integer
 function naivecgl.Naive_NurbsCurve:NbKnots()
   local nbKnots = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH, nbKnots, nil))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH[0], nbKnots, nil))
   return nbKnots[0]
 end
 
@@ -731,9 +828,9 @@ end
 ---@return naivecgl.Naive_DoubleArray
 function naivecgl.Naive_NurbsCurve:Knots()
   local nbKnots = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH, nbKnots, nil))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH[0], nbKnots, nil))
   local aK = ffi.new("double[?]", nbKnots[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH, nbKnots, aK))
+  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH[0], nbKnots, aK))
   return naivecgl.Naive_DoubleArray:take(aK, nbKnots[0])
 end
 
@@ -742,7 +839,7 @@ end
 ---@return integer
 function naivecgl.Naive_NurbsCurve:Multiplicities(theI)
   local aMult = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_Multiplicity(self.myH, theI, aMult))
+  check_code(naivecgl.NS.Naive_NurbsCurve_Multiplicity(self.myH[0], theI, aMult))
   return aMult[0]
 end
 
@@ -750,7 +847,7 @@ end
 ---@return number
 function naivecgl.Naive_NurbsCurve:FirstParameter()
   local aBound = ffi.new("Naive_Interval_t")
-  check_code(naivecgl.NS.Naive_Curve_ask_bound(self.myH, aBound))
+  check_code(naivecgl.NS.Naive_Curve_ask_bound(self.myH[0], aBound))
   return aBound.t0
 end
 
@@ -758,7 +855,7 @@ end
 ---@return number
 function naivecgl.Naive_NurbsCurve:LastParameter()
   local aBound = ffi.new("Naive_Interval_t")
-  check_code(naivecgl.NS.Naive_Curve_ask_bound(self.myH, aBound))
+  check_code(naivecgl.NS.Naive_Curve_ask_bound(self.myH[0], aBound))
   return aBound.t1
 end
 
@@ -768,7 +865,7 @@ end
 function naivecgl.Naive_NurbsCurve:PointAt(theT)
   local nbD = ffi.new("int[1]")
   local aP = ffi.new(naivecgl.Naive_XYZ.myType)
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, 0, nbD, aP))
+  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH[0], theT, 0, nbD, aP))
   return naivecgl.Naive_XYZ.take(aP)
 end
 
@@ -778,7 +875,7 @@ end
 function naivecgl.Naive_NurbsCurve:TangentAt(theT)
   local nbD = ffi.new("int[1]")
   local aP = ffi.new("Naive_Vector3d_t[2]")
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, 1, nbD, aP))
+  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH[0], theT, 1, nbD, aP))
   return naivecgl.Naive_XYZ.take(aP[1])
 end
 
@@ -788,9 +885,9 @@ end
 ---@return naivecgl.Naive_XYZArray
 function naivecgl.Naive_NurbsCurve:DerivativeAt(theT, theN)
   local nbD = ffi.new("int[1]", 0)
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, theN, nbD, nil))
+  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH[0], theT, theN, nbD, nil))
   local aD = ffi.new("Naive_Vector3d_t[?]", nbD[0])
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, theN, nbD, aD))
+  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH[0], theT, theN, nbD, aD))
   return naivecgl.Naive_XYZArray:take(aD, nbD[0])
 end
 
@@ -799,7 +896,7 @@ end
 ---@return naivecgl.Naive_XYZ
 function naivecgl.Naive_NurbsCurve:CurvatureAt(theT)
   local aV = ffi.new("Naive_Vector3d_t")
-  check_code(naivecgl.NS.Naive_Curve_curvature_at(self.myH, theT, aV))
+  check_code(naivecgl.NS.Naive_Curve_curvature_at(self.myH[0], theT, aV))
   return naivecgl.Naive_XYZ.take(aV)
 end
 
@@ -808,7 +905,7 @@ end
 ---@param theM integer
 ---@return integer code
 function naivecgl.Naive_NurbsCurve:IncreaseMultiplicity(theI, theM)
-  return naivecgl.NS.Naive_NurbsCurve_increase_multiplicity(self.myH, theI, theM)
+  return naivecgl.NS.Naive_NurbsCurve_increase_multiplicity(self.myH[0], theI, theM)
 end
 
 ---
@@ -816,14 +913,14 @@ end
 ---@param theM integer
 ---@return integer code
 function naivecgl.Naive_NurbsCurve:InsertKnot(theT, theM)
-  return naivecgl.NS.Naive_NurbsCurve_insert_knot(self.myH, theT, theM)
+  return naivecgl.NS.Naive_NurbsCurve_insert_knot(self.myH[0], theT, theM)
 end
 
 ---Dispose.
 function naivecgl.Naive_NurbsCurve:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil))
-    self.myH = nil
+    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil)[0])
+    self.myH[0] = 0
   end
 end
 
@@ -900,8 +997,8 @@ function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
     theUDegree, theVDegree, aH))
 
   local nurbsSurface = {
-    myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Object_free(theHandle)
+    myH = ffi.gc(aH, function(theHandle)
+      naivecgl.NS.Naive_Object_free(theHandle[0])
     end)
   }
   setmetatable(nurbsSurface, naivecgl.Naive_NurbsSurface)
@@ -915,7 +1012,7 @@ end
 function naivecgl.Naive_NurbsSurface:PointAt(theU, theV)
   local nbD = ffi.new("int[1]")
   local aP = ffi.new(naivecgl.Naive_XYZ.myType)
-  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH, theU, theV, 0, nbD, aP))
+  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH[0], theU, theV, 0, nbD, aP))
   return naivecgl.Naive_XYZ.take(aP)
 end
 
@@ -926,16 +1023,16 @@ end
 ---@return naivecgl.Naive_XYZArray
 function naivecgl.Naive_NurbsSurface:Evaluate(theU, theV, theN)
   local nbD = ffi.new("int[1]", 0)
-  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH, theU, theV, theN, nbD, nil))
+  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH[0], theU, theV, theN, nbD, nil))
   local aD = ffi.new("Naive_Vector3d_t[?]", nbD[0])
-  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH, theU, theV, theN, nbD, aD))
+  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH[0], theU, theV, theN, nbD, aD))
   return naivecgl.Naive_XYZArray:take(aD, nbD[0])
 end
 
 function naivecgl.Naive_NurbsSurface:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil))
-    self.myH = nil
+    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil)[0])
+    self.myH[0] = 0
   end
 end
 
@@ -971,7 +1068,7 @@ function naivecgl.Naive_Poly.new(theNodes, theTris)
 
   local aH = ffi.new("Naive_Poly_t[1]")
   check_code(naivecgl.NS.Naive_Poly_new(nbNodes, aNodes, nbTris, aTris, aH))
-  return naivecgl.Naive_Poly.take(aH[0])
+  return naivecgl.Naive_Poly.take(aH)
 end
 
 ---@param theH ffi.cdata*
@@ -979,7 +1076,7 @@ end
 function naivecgl.Naive_Poly.take(theH)
   local poly = {
     myH = ffi.gc(theH, function(theHandle)
-      naivecgl.NS.Naive_Object_free(theHandle)
+      naivecgl.NS.Naive_Object_free(theHandle[0])
     end),
   }
   setmetatable(poly, naivecgl.Naive_Poly)
@@ -990,7 +1087,7 @@ end
 ---@return integer
 function naivecgl.Naive_Poly:NbVertices()
   local nbVerts = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH, nbVerts, nil))
+  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH[0], nbVerts, nil))
   return nbVerts[0]
 end
 
@@ -998,7 +1095,7 @@ end
 ---@return integer
 function naivecgl.Naive_Poly:NbTriangles()
   local nbTris = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_Poly_ask_triangles(self.myH, nbTris, nil))
+  check_code(naivecgl.NS.Naive_Poly_ask_triangles(self.myH[0], nbTris, nil))
   return nbTris[0]
 end
 
@@ -1008,7 +1105,7 @@ function naivecgl.Naive_Poly:Vertices()
   local nbVertices = self:NbVertices()
   local aVertices = ffi.new("Naive_Point3d_t[?]", nbVertices)
   local nbVerts = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH, nbVerts, aVertices))
+  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH[0], nbVerts, aVertices))
   return naivecgl.Naive_XYZArray:take(aVertices, nbVertices)
 end
 
@@ -1018,7 +1115,7 @@ function naivecgl.Naive_Poly:Triangles()
   local nbTriangles = self:NbTriangles()
   local aTriangles = ffi.new("Naive_Triangle_t[?]", nbTriangles)
   local nbTris = ffi.new("int[1]")
-  naivecgl.NS.Naive_Poly_ask_triangles(self.myH, nbTris, aTriangles)
+  naivecgl.NS.Naive_Poly_ask_triangles(self.myH[0], nbTris, aTriangles)
 
   local aRes = {}
   for i = 1, nbTriangles do
@@ -1034,8 +1131,8 @@ end
 
 function naivecgl.Naive_Poly:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil))
-    self.myH = nil
+    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil)[0])
+    self.myH[0] = 0
   end
 end
 
@@ -1062,8 +1159,8 @@ function naivecgl.bndshape.ConvexHull2D.new(thePoints, theAlgo)
   check_code(naivecgl.NS.Naive_BndShape_ConvexHull2D_new(aPoints:Size(), aPoints:Data(), theAlgo, aH))
 
   local ch2d = {
-    myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Object_free(theHandle)
+    myH = ffi.gc(aH, function(theHandle)
+      naivecgl.NS.Naive_Object_free(theHandle[0])
     end)
   }
   setmetatable(ch2d, naivecgl.bndshape.ConvexHull2D)
@@ -1074,13 +1171,13 @@ end
 ---@param theAlgo any
 ---@return integer
 function naivecgl.bndshape.ConvexHull2D:SetAlgorithm(theAlgo)
-  return naivecgl.NS.Naive_BndShape_ConvexHull2D_set_algorithm(self.myH, theAlgo)
+  return naivecgl.NS.Naive_BndShape_ConvexHull2D_set_algorithm(self.myH[0], theAlgo)
 end
 
 ---Perform the algorithm.
 ---@return integer
 function naivecgl.bndshape.ConvexHull2D:Perform()
-  return naivecgl.NS.Naive_BndShape_ConvexHull2D_perform(self.myH)
+  return naivecgl.NS.Naive_BndShape_ConvexHull2D_perform(self.myH[0])
 end
 
 ---Add a point.
@@ -1092,7 +1189,7 @@ function naivecgl.bndshape.ConvexHull2D:Add(thePnt, thePerform)
   end
 
   local aPnt = ffi.new("Naive_Point2d_t", thePnt)
-  return naivecgl.NS.Naive_BndShape_ConvexHull2D_add_point(self.myH, aPnt, thePerform)
+  return naivecgl.NS.Naive_BndShape_ConvexHull2D_add_point(self.myH[0], aPnt, thePerform)
 end
 
 ---Get the convex indices.
@@ -1101,9 +1198,9 @@ function naivecgl.bndshape.ConvexHull2D:ConvexIndices()
   local aRes = {}
 
   local nbRes = ffi.new "int[1]"
-  check_code(naivecgl.NS.Naive_BndShape_ConvexHull2D_ask_result(self.myH, nbRes, nil, nil))
+  check_code(naivecgl.NS.Naive_BndShape_ConvexHull2D_ask_result(self.myH[0], nbRes, nil, nil))
   local indices = ffi.new("int[?]", nbRes[0])
-  check_code(naivecgl.NS.Naive_BndShape_ConvexHull2D_ask_result(self.myH, nbRes, indices, nil))
+  check_code(naivecgl.NS.Naive_BndShape_ConvexHull2D_ask_result(self.myH[0], nbRes, indices, nil))
 
   for i = 1, nbRes[0] do
     aRes[i] = indices[i - 1] + 1
@@ -1114,8 +1211,8 @@ end
 
 function naivecgl.bndshape.ConvexHull2D:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil))
-    self.myH = nil
+    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil)[0])
+    self.myH[0] = 0
   end
 end
 
@@ -1137,8 +1234,8 @@ function naivecgl.bndshape.EnclosingDisc.new()
   check_code(naivecgl.NS.Naive_BndShape_EnclosingDisc_new(aH))
 
   local ed = {
-    myH = ffi.gc(aH[0], function(theHandle)
-      naivecgl.NS.Naive_Object_free(theHandle)
+    myH = ffi.gc(aH, function(theHandle)
+      naivecgl.NS.Naive_Object_free(theHandle[0])
     end)
   }
   setmetatable(ed, naivecgl.bndshape.EnclosingDisc)
@@ -1150,7 +1247,7 @@ end
 ---@return integer code
 function naivecgl.bndshape.EnclosingDisc:ReBuild(thePoints)
   local aPoints = naivecgl.Naive_XYArray:new(thePoints)
-  return naivecgl.NS.Naive_BndShape_EnclosingDisc_rebuild(self.myH, aPoints:Size(), aPoints:Data())
+  return naivecgl.NS.Naive_BndShape_EnclosingDisc_rebuild(self.myH[0], aPoints:Size(), aPoints:Data())
 end
 
 ---Get the cicle.
@@ -1159,14 +1256,14 @@ end
 function naivecgl.bndshape.EnclosingDisc:Circle()
   local anOrigin = ffi.new("Naive_Point2d_t")
   local aR = ffi.new("double[1]", 0)
-  check_code(naivecgl.NS.Naive_BndShape_EnclosingDisc_ask_circle(self.myH, anOrigin, aR))
+  check_code(naivecgl.NS.Naive_BndShape_EnclosingDisc_ask_circle(self.myH[0], anOrigin, aR))
   return naivecgl.Naive_XY.take(anOrigin), aR[0]
 end
 
 function naivecgl.bndshape.EnclosingDisc:Dispose()
   if self.myH then
-    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil))
-    self.myH = nil
+    naivecgl.NS.Naive_Object_free(ffi.gc(self.myH, nil)[0])
+    self.myH[0] = 0
   end
 end
 
@@ -1182,7 +1279,7 @@ end
 function naivecgl.tessellation.Naive_Tessellation_Sphere_TetraSphere(theCenter, theRadius, theLevel)
   local aPoly = ffi.new "Naive_Poly_t[1]"
   check_code(naivecgl.NS.Naive_Tessellation_Sphere_tetrasphere(theCenter:Data(), theRadius, theLevel, aPoly))
-  return naivecgl.Naive_Poly.take(aPoly[0])
+  return naivecgl.Naive_Poly.take(aPoly)
 end
 
 --------------------------------------------------------------------------------
