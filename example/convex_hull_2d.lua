@@ -25,7 +25,7 @@ for i = 1, nbPoints do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local convexIndices = naivecgl.geom2dapi.convex_hull(aPoints)
+local code, convexIndices = naivecgl.geom2dapi.convex_hull(aPoints)
 local count = #convexIndices
 
 for i = 1, count do

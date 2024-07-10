@@ -12,9 +12,10 @@ doc:Objects():Clear(false)
 if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
 __ghost__:Clear(false)
 
-local tetrasphere = naivecgl.tessellation.make_tetrasphere(naivecgl.Naive_XYZ(), 10, 10)
-local aVertices = tetrasphere:ask_vertices()
-local aTriangles = tetrasphere:ask_triangles()
+local code, tetrasphere = naivecgl.tessellation.make_tetrasphere(naivecgl.Naive_XYZ(), 10, 10)
+local code, aVertices = naivecgl.Naive_Poly.ask_vertices(tetrasphere)
+local code, aTriangles = naivecgl.Naive_Poly.ask_triangles(tetrasphere)
+naivecgl.Naive_Object.delete(tetrasphere)
 
 local vList = {}
 for i = 1, aVertices:size() do

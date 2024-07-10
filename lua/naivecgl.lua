@@ -1,4 +1,14 @@
 local naivecgl = {}
+
+naivecgl.Naive_Object = {}
+naivecgl.Naive_Geometry = {}
+naivecgl.Naive_Curve = {}
+naivecgl.Naive_BoundedCurve = {}
+naivecgl.Naive_NurbsCurve = {}
+naivecgl.Naive_Surface = {}
+naivecgl.Naive_NurbsSurface = {}
+naivecgl.Naive_Poly = {}
+naivecgl.enum = {}
 naivecgl.geom2dapi = {}
 naivecgl.tessellation = {}
 
@@ -8,6 +18,7 @@ naivecgl.tessellation = {}
 
 local ffi = require("ffi")
 
+---@private
 ---@type ffi.namespace*
 naivecgl.NS = nil
 
@@ -486,6 +497,12 @@ Naive_Code_t Naive_Tessellation_make_tetrasphere(
   end
 end
 
+setmetatable(naivecgl.enum, {
+  __index = function(_, e)
+    return naivecgl.NS[e]
+  end
+})
+
 --------------------------------------------------------------------------------
 --                                Primitive                                   --
 --------------------------------------------------------------------------------
@@ -749,280 +766,298 @@ naivecgl.Naive_XYArray = array_instantiate(naivecgl.Naive_XY)
 naivecgl.Naive_XYZArray = array_instantiate(naivecgl.Naive_XYZ)
 
 --------------------------------------------------------------------------------
---                            Naive_NurbsCurve                                --
+--                                Naive_Curve                                 --
 --------------------------------------------------------------------------------
 
----@class naivecgl.Naive_NurbsCurve
----@field private myH integer
-naivecgl.Naive_NurbsCurve = {}
+---
+---@param curve integer
+---@return integer code
+---@return number t0
+---@return number t1
+function naivecgl.Naive_Curve.ask_bound(curve)
+  local aBound = ffi.new("Naive_Interval_t", { 0, 0 })
+  return naivecgl.NS.Naive_Curve_ask_bound(curve, aBound), aBound.t0, aBound.t1
+end
 
----@private
-naivecgl.Naive_NurbsCurve.__index = naivecgl.Naive_NurbsCurve
+---
+---@param curve integer
+---@param t number
+---@param n_derivative integer
+---@return integer code
+---@return naivecgl.Naive_XYZArray result
+function naivecgl.Naive_Curve.evaluate(curve, t, n_derivative)
+  local n_result = ffi.new("int[1]", 0)
+  local code = naivecgl.NS.Naive_Curve_evaluate(curve, t, n_derivative, n_result, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
+  code = naivecgl.NS.Naive_Curve_evaluate(curve, t, n_derivative, n_result, result)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_XYZArray:take(result, n_result[0])
+end
 
----Constructor.
----@param thePoles naivecgl.Naive_XYZ[]
----@param theWeights number[]
----@param theKnots number[]
----@param theMults integer[]
----@param theDegree integer
----@return naivecgl.Naive_NurbsCurve
-function naivecgl.Naive_NurbsCurve.new(thePoles, theWeights, theKnots, theMults, theDegree)
-  local aPoles = naivecgl.Naive_XYZArray:new(thePoles)
-  local aWeights = naivecgl.Naive_DoubleArray:new(theWeights)
-  local aKnots = naivecgl.Naive_DoubleArray:new(theKnots)
-  local aMults = naivecgl.Naive_Int32Array:new(theMults)
+---
+---@param curve integer
+---@param t number
+---@return integer code
+---@return naivecgl.Naive_XYZ curvature
+function naivecgl.Naive_Curve.curvature_at(curve, t)
+  local curvature = ffi.new("Naive_Vector3d_t", { 0, 0, 0 })
+  return naivecgl.NS.Naive_Curve_curvature_at(curve, t, curvature), naivecgl.Naive_XYZ.take(curvature)
+end
 
-  local aH = ffi.new("Naive_NurbsCurve_t[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_new(
+--------------------------------------------------------------------------------
+--                              Naive_Geometry                                --
+--------------------------------------------------------------------------------
+
+---comment
+---@param geometry integer
+---@return integer code
+---@return integer clone
+function naivecgl.Naive_Geometry.clone(geometry)
+  local aClone = ffi.new("Naive_Geometry_t[1]", 0)
+  return naivecgl.NS.Naive_Geometry_clone(geometry, aClone), aClone[0]
+end
+
+---comment
+---@param geometry integer
+---@return integer code
+---@return boolean is_valid
+function naivecgl.Naive_Geometry.is_valid(geometry)
+  local aRes = ffi.new("Naive_Logical_t[1]", 0)
+  return naivecgl.NS.Naive_Geometry_is_valid(geometry, aRes), aRes[0] == 1
+end
+
+--------------------------------------------------------------------------------
+--                             Naive_NurbsCurve                               --
+--------------------------------------------------------------------------------
+
+---
+---@param pole naivecgl.Naive_XYZ[]
+---@param weight number[]
+---@param knots number[]
+---@param mults integer[]
+---@param degree integer
+---@return integer code
+---@return integer nurbs_curve
+function naivecgl.Naive_NurbsCurve.new(pole, weight, knots, mults, degree)
+  local aPoles = naivecgl.Naive_XYZArray:new(pole)
+  local aWeights = naivecgl.Naive_DoubleArray:new(weight)
+  local aKnots = naivecgl.Naive_DoubleArray:new(knots)
+  local aMults = naivecgl.Naive_Int32Array:new(mults)
+  local nurbs_curve = ffi.new("Naive_NurbsCurve_t[1]", 0)
+  return naivecgl.NS.Naive_NurbsCurve_new(
     aPoles:size(), aPoles:data(), aWeights:size(), aWeights:data(),
     aKnots:size(), aKnots:data(), aMults:size(), aMults:data(),
-    theDegree, aH))
-
-  local nurbsCurve = { myH = aH[0] }
-  setmetatable(nurbsCurve, naivecgl.Naive_NurbsCurve)
-  return nurbsCurve
+    degree, nurbs_curve), nurbs_curve[0]
 end
 
 ---
----@return integer
-function naivecgl.Naive_NurbsCurve:ask_degree()
-  local aDegree = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_degree(self.myH, aDegree))
-  return aDegree[0]
-end
-
----
----@return naivecgl.Naive_XYZArray
-function naivecgl.Naive_NurbsCurve:ask_poles()
-  local nbPoles = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH, nbPoles, nil))
-  local aP = ffi.new("Naive_Point3d_t[?]", nbPoles[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_poles(self.myH, nbPoles, aP))
-  return naivecgl.Naive_XYZArray:take(aP, nbPoles[0])
-end
-
----
----@return naivecgl.Naive_DoubleArray
-function naivecgl.Naive_NurbsCurve:ask_weights()
-  local nbWeights = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH, nbWeights, nil))
-  local aW = ffi.new("double[?]", nbWeights[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_weights(self.myH, nbWeights, aW))
-  return naivecgl.Naive_DoubleArray:take(aW, nbWeights[0])
-end
-
----
----@return naivecgl.Naive_DoubleArray
-function naivecgl.Naive_NurbsCurve:ask_knots()
-  local nbKnots = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH, nbKnots, nil))
-  local aK = ffi.new("double[?]", nbKnots[0])
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_knots(self.myH, nbKnots, aK))
-  return naivecgl.Naive_DoubleArray:take(aK, nbKnots[0])
-end
-
----
----@param theI integer
----@return integer
-function naivecgl.Naive_NurbsCurve:ask_mults(theI)
-  local aMult = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_NurbsCurve_ask_mults(self.myH, theI, aMult))
-  return aMult[0]
-end
-
----
----@return number T0
----@return number T1
-function naivecgl.Naive_NurbsCurve:ask_bound()
-  local aBound = ffi.new("Naive_Interval_t")
-  check_code(naivecgl.NS.Naive_Curve_ask_bound(self.myH, aBound))
-  return aBound.t0, aBound.t1
-end
-
----
----@param theT number
----@param theN integer
----@return naivecgl.Naive_XYZArray
-function naivecgl.Naive_NurbsCurve:evaluate(theT, theN)
-  local nbD = ffi.new("int[1]", 0)
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, theN, nbD, nil))
-  local aD = ffi.new("Naive_Vector3d_t[?]", nbD[0])
-  check_code(naivecgl.NS.Naive_Curve_evaluate(self.myH, theT, theN, nbD, aD))
-  return naivecgl.Naive_XYZArray:take(aD, nbD[0])
-end
-
----
----@param theT number
----@return naivecgl.Naive_XYZ
-function naivecgl.Naive_NurbsCurve:curvature_at(theT)
-  local aV = ffi.new("Naive_Vector3d_t")
-  check_code(naivecgl.NS.Naive_Curve_curvature_at(self.myH, theT, aV))
-  return naivecgl.Naive_XYZ.take(aV)
-end
-
----
----@param theI integer
----@param theM integer
+---@param nurbs_curve integer
 ---@return integer code
-function naivecgl.Naive_NurbsCurve:increase_multiplicity(theI, theM)
-  return naivecgl.NS.Naive_NurbsCurve_increase_multiplicity(self.myH, theI, theM)
+---@return integer degree
+function naivecgl.Naive_NurbsCurve.ask_degree(nurbs_curve)
+  local degree = ffi.new("int[1]")
+  return naivecgl.NS.Naive_NurbsCurve_ask_degree(nurbs_curve, degree), degree[0]
 end
 
 ---
----@param theT number
----@param theM integer
+---@param nurbs_curve integer
 ---@return integer code
-function naivecgl.Naive_NurbsCurve:Insert_knot(theT, theM)
-  return naivecgl.NS.Naive_NurbsCurve_insert_knot(self.myH, theT, theM)
+---@return naivecgl.Naive_XYZArray poles
+function naivecgl.Naive_NurbsCurve.ask_poles(nurbs_curve)
+  local n_poles = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_NurbsCurve_ask_poles(nurbs_curve, n_poles, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local poles = ffi.new("Naive_Point3d_t[?]", n_poles[0])
+  code = naivecgl.NS.Naive_NurbsCurve_ask_poles(nurbs_curve, n_poles, poles)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_XYZArray:take(poles, n_poles[0])
 end
 
 ---
-function naivecgl.Naive_NurbsCurve:delete()
-  if self.myH then
-    local code = naivecgl.NS.Naive_Object_delete(self.myH)
-    self.myH = 0
-    return code
-  end
-  return naivecgl.NS.Naive_Code_invalid_object
+---@param nurbs_curve integer
+---@return integer code
+---@return naivecgl.Naive_DoubleArray weights
+function naivecgl.Naive_NurbsCurve.ask_weights(nurbs_curve)
+  local n_weights = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_NurbsCurve_ask_weights(nurbs_curve, n_weights, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local weights = ffi.new("double[?]", n_weights[0])
+  code = naivecgl.NS.Naive_NurbsCurve_ask_weights(nurbs_curve, n_weights, weights)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_DoubleArray:take(weights, n_weights[0])
+end
+
+---
+---@param nurbs_curve integer
+---@return integer code
+---@return naivecgl.Naive_DoubleArray
+function naivecgl.Naive_NurbsCurve.ask_knots(nurbs_curve)
+  local n_knots = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_NurbsCurve_ask_knots(nurbs_curve, n_knots, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local knots = ffi.new("double[?]", n_knots[0])
+  code = naivecgl.NS.Naive_NurbsCurve_ask_knots(nurbs_curve, n_knots, knots)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_DoubleArray:take(knots, n_knots[0])
+end
+
+---
+---@param nurbs_curve integer
+---@return integer code
+---@return naivecgl.Naive_Int32Array mults
+function naivecgl.Naive_NurbsCurve.ask_mults(nurbs_curve)
+  local n_mults = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_NurbsCurve_ask_mults(nurbs_curve, n_mults, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local mults = ffi.new("double[?]", n_mults[0])
+  code = naivecgl.NS.Naive_NurbsCurve_ask_mults(nurbs_curve, n_mults, mults)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_Int32Array:take(mults, n_mults[0])
+end
+
+---
+---@param nurbs_curve integer
+---@param index integer
+---@param mult integer
+---@return integer code
+function naivecgl.Naive_NurbsCurve.increase_multiplicity(nurbs_curve, index, mult)
+  return naivecgl.NS.Naive_NurbsCurve_increase_multiplicity(nurbs_curve, index, mult)
+end
+
+---
+---@param nurbs_curve integer
+---@param t number
+---@param mult integer
+---@return integer code
+function naivecgl.Naive_NurbsCurve.insert_knot(nurbs_curve, t, mult)
+  return naivecgl.NS.Naive_NurbsCurve_insert_knot(nurbs_curve, t, mult)
 end
 
 --------------------------------------------------------------------------------
---                            Naive_NurbsCurve                                --
+--                            Naive_NurbsSurface                              --
 --------------------------------------------------------------------------------
 
----@class naivecgl.Naive_NurbsSurface
----@field private myH integer
-naivecgl.Naive_NurbsSurface = {}
-
----@private
-naivecgl.Naive_NurbsSurface.__index = naivecgl.Naive_NurbsSurface
-
----Constructor.
----@param thePoles naivecgl.Naive_XYZ[][]
----@param theWeights number[][]
----@param theUKnots number[]
----@param theVKnots number[]
----@param theUMults integer[]
----@param theVMults integer[]
----@param theUDegree integer
----@param theVDegree integer
----@return naivecgl.Naive_NurbsSurface
-function naivecgl.Naive_NurbsSurface.new(thePoles, theWeights,
-                                         theUKnots, theVKnots,
-                                         theUMults, theVMults,
-                                         theUDegree, theVDegree)
-  local nbUP, nbVP, aFlatPoles = flatten_array2(thePoles)
+---
+---@param poles naivecgl.Naive_XYZ[][]
+---@param weights number[][]
+---@param knots_u number[]
+---@param knots_v number[]
+---@param mults_u integer[]
+---@param mults_v integer[]
+---@param degree_u integer
+---@param degree_v integer
+---@return integer code
+---@return integer nurbs_surface
+function naivecgl.Naive_NurbsSurface.new(poles, weights, knots_u, knots_v, mults_u, mults_v, degree_u, degree_v)
+  local nbUP, nbVP, aFlatPoles = flatten_array2(poles)
   local aPoles = naivecgl.Naive_XYZArray:new(aFlatPoles)
-
-  local nbUW, nbVW, aFlatWeights = flatten_array2(theWeights)
+  local nbUW, nbVW, aFlatWeights = flatten_array2(weights)
   local aWeights = naivecgl.Naive_DoubleArray:new(aFlatWeights)
-
-  local aUKnots = naivecgl.Naive_DoubleArray:new(theUKnots)
-  local aVKnots = naivecgl.Naive_DoubleArray:new(theVKnots)
-  local aUMults = naivecgl.Naive_Int32Array:new(theUMults)
-  local aVMults = naivecgl.Naive_Int32Array:new(theVMults)
-
-  local aH = ffi.new("Naive_NurbsSurface_t[1]")
-  check_code(naivecgl.NS.Naive_NurbsSurface_new(
+  local aUKnots = naivecgl.Naive_DoubleArray:new(knots_u)
+  local aVKnots = naivecgl.Naive_DoubleArray:new(knots_v)
+  local aUMults = naivecgl.Naive_Int32Array:new(mults_u)
+  local aVMults = naivecgl.Naive_Int32Array:new(mults_v)
+  local nurbs_surface = ffi.new("Naive_NurbsSurface_t[1]", 0)
+  return naivecgl.NS.Naive_NurbsSurface_new(
     nbUP, nbVP, aPoles:data(),
     nbUW, nbVW, aWeights:data(),
     aUKnots:size(), aUKnots:data(), aVKnots:size(), aVKnots:data(),
     aUMults:size(), aUMults:data(), aVMults:size(), aVMults:data(),
-    theUDegree, theVDegree, aH))
-
-  local nurbsSurface = { myH = aH[0] }
-  setmetatable(nurbsSurface, naivecgl.Naive_NurbsSurface)
-  return nurbsSurface
-end
-
----
----@param theU number
----@param theV number
----@param theN integer
----@return naivecgl.Naive_XYZArray
-function naivecgl.Naive_NurbsSurface:evaluate(theU, theV, theN)
-  local nbD = ffi.new("int[1]", 0)
-  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH, theU, theV, theN, nbD, nil))
-  local aD = ffi.new("Naive_Vector3d_t[?]", nbD[0])
-  check_code(naivecgl.NS.Naive_Surface_evaluate(self.myH, theU, theV, theN, nbD, aD))
-  return naivecgl.Naive_XYZArray:take(aD, nbD[0])
+    degree_u, degree_v, nurbs_surface), nurbs_surface[0]
 end
 
 --------------------------------------------------------------------------------
 --                               Naive_Object                                 --
 --------------------------------------------------------------------------------
 
+---
+---@param object integer
+---@return integer code
+function naivecgl.Naive_Object.delete(object)
+  return naivecgl.NS.Naive_Object_delete(object)
+end
+
 --------------------------------------------------------------------------------
 --                               Naive_Poly                                   --
 --------------------------------------------------------------------------------
 
----@class naivecgl.Naive_Poly
----@field private myH integer
-naivecgl.Naive_Poly = {}
-
----@private
-naivecgl.Naive_Poly.__index = naivecgl.Naive_Poly
-
 ---Constructor.
----@param theNodes naivecgl.Naive_XYZ[]
----@param theTris integer[][] 1-indexed
----@return naivecgl.Naive_Poly
-function naivecgl.Naive_Poly.new(theNodes, theTris)
-  local nbNodes = #theNodes
-  local aNodes = ffi.new("Naive_Point3d_t[?]", nbNodes)
-  for i = 1, nbNodes do
-    aNodes[i - 1] = theNodes[i]:data()
-  end
+---@param vertices naivecgl.Naive_XYZ[]
+---@param triangles integer[][] 1-indexed
+---@return integer code
+---@return integer poly
+function naivecgl.Naive_Poly.new(vertices, triangles)
+  local aVerts = naivecgl.Naive_XYZArray:new(vertices)
 
-  local nbTris = #theTris
+  local nbTris = #triangles
   local aTris = ffi.new("Naive_Triangle_t[?]", nbTris)
   for i = 1, nbTris do
-    aTris[i - 1].n0 = theTris[i][1] - 1
-    aTris[i - 1].n1 = theTris[i][2] - 1
-    aTris[i - 1].n2 = theTris[i][3] - 1
+    aTris[i - 1].n0 = triangles[i][1] - 1
+    aTris[i - 1].n1 = triangles[i][2] - 1
+    aTris[i - 1].n2 = triangles[i][3] - 1
   end
 
-  local aH = ffi.new("Naive_Poly_t[1]")
-  check_code(naivecgl.NS.Naive_Poly_new(nbNodes, aNodes, nbTris, aTris, aH))
-  return naivecgl.Naive_Poly.take(aH[0])
+  local poly = ffi.new("Naive_Poly_t[1]", 0)
+  return naivecgl.NS.Naive_Poly_new(aVerts:size(), aVerts, nbTris, aTris, poly), poly[0]
 end
 
----@param theH integer
----@return naivecgl.Naive_Poly
-function naivecgl.Naive_Poly.take(theH)
-  local poly = { myH = theH }
-  setmetatable(poly, naivecgl.Naive_Poly)
-  return poly
-end
-
----Vertices.
+---
+---@param poly integer
+---@return integer code
 ---@return naivecgl.Naive_XYZArray
-function naivecgl.Naive_Poly:ask_vertices()
-  local nbVerts = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH, nbVerts, nil))
-  local aVertices = ffi.new("Naive_Point3d_t[?]", nbVerts[0])
-  check_code(naivecgl.NS.Naive_Poly_ask_vertices(self.myH, nbVerts, aVertices))
-  return naivecgl.Naive_XYZArray:take(aVertices, nbVerts[0])
+function naivecgl.Naive_Poly.ask_vertices(poly)
+  local n_vertices = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_Poly_ask_vertices(poly, n_vertices, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local vertices = ffi.new("Naive_Point3d_t[?]", n_vertices[0])
+  code = naivecgl.NS.Naive_Poly_ask_vertices(poly, n_vertices, vertices)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_XYZArray:take(vertices, n_vertices[0])
 end
 
 ---Triangles (1-indexed).
----@return integer[][]
-function naivecgl.Naive_Poly:ask_triangles()
-  local nbTris = ffi.new("int[1]")
-  check_code(naivecgl.NS.Naive_Poly_ask_triangles(self.myH, nbTris, nil))
-  local aTriangles = ffi.new("Naive_Triangle_t[?]", nbTris[0])
-  naivecgl.NS.Naive_Poly_ask_triangles(self.myH, nbTris, aTriangles)
+---@return integer code
+---@return integer[][] triangles
+function naivecgl.Naive_Poly.ask_triangles(poly)
+  local n_triangles = ffi.new("int[1]")
+  local code = naivecgl.NS.Naive_Poly_ask_triangles(poly, n_triangles, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local triangles = ffi.new("Naive_Triangle_t[?]", n_triangles[0])
+  code = naivecgl.NS.Naive_Poly_ask_triangles(poly, n_triangles, triangles)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
 
-  local aRes = {}
-  for i = 1, nbTris[0] do
-    aRes[i] = {
-      aTriangles[i - 1].n0 + 1,
-      aTriangles[i - 1].n1 + 1,
-      aTriangles[i - 1].n2 + 1,
+  local result = {}
+  for i = 1, n_triangles[0] do
+    result[i] = {
+      triangles[i - 1].n0 + 1,
+      triangles[i - 1].n1 + 1,
+      triangles[i - 1].n2 + 1,
     }
   end
 
-  return aRes
+  return code, result
+end
+
+--------------------------------------------------------------------------------
+--                            Naive_Surface                                   --
+--------------------------------------------------------------------------------
+
+---
+---@param surface integer
+---@param u number
+---@param v number
+---@param n_derivative integer
+---@return integer code
+---@return naivecgl.Naive_XYZArray result
+function naivecgl.Naive_Surface.evaluate(surface, u, v, n_derivative)
+  local n_result = ffi.new("int[1]", 0)
+  local code = naivecgl.NS.Naive_Surface_evaluate(surface, u, v, n_derivative, n_result, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
+  code = naivecgl.NS.Naive_Surface_evaluate(surface, u, v, n_derivative, n_result, result)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.Naive_XYZArray:take(result, n_result[0])
 end
 
 --------------------------------------------------------------------------------
@@ -1030,51 +1065,55 @@ end
 --------------------------------------------------------------------------------
 
 ---
----@param thePoints naivecgl.Naive_XY[]
----@param theAlgo? any
----@return integer[]
-function naivecgl.geom2dapi.convex_hull(thePoints, theAlgo)
-  theAlgo = theAlgo or naivecgl.NS.Naive_Algorithm_quick_hull
-  local aPoints = naivecgl.Naive_XYArray:new(thePoints)
-  local nbRes = ffi.new("int[1]")
-  local indices = ffi.new("int*[1]")
-  check_code(naivecgl.NS.Naive_Geom2dAPI_convex_hull(aPoints:size(), aPoints:data(), theAlgo, nbRes, indices, nil))
+---@param points naivecgl.Naive_XY[]
+---@param algo? any
+---@return integer code
+---@return integer[] convex_indices
+function naivecgl.geom2dapi.convex_hull(points, algo)
+  algo = algo or naivecgl.NS.Naive_Algorithm_quick_hull
+  local aPoints = naivecgl.Naive_XYArray:new(points)
+  local n_convex_points = ffi.new("int[1]")
+  local convex_indices = ffi.new("int*[1]")
+  local code = naivecgl.NS.Naive_Geom2dAPI_convex_hull(aPoints:size(), aPoints:data(), algo,
+    n_convex_points, convex_indices, nil)
 
-  local aRes = {}
-  for i = 1, nbRes[0] do
-    aRes[i] = indices[0][i - 1] + 1
+  local ci = {}
+  if code == naivecgl.NS.Naive_Code_ok then
+    for i = 1, n_convex_points[0] do
+      ci[i] = convex_indices[0][i - 1] + 1
+    end
   end
 
-  naivecgl.NS.Naive_Memory_free(indices[0])
-
-  return aRes
+  naivecgl.NS.Naive_Memory_free(convex_indices[0])
+  return code, ci
 end
 
 ---
----@param thePoints naivecgl.Naive_XY[]
+---@param points naivecgl.Naive_XY[]
+---@return integer code
 ---@return naivecgl.Naive_XY origin
 ---@return number radius
-function naivecgl.geom2dapi.enclosing_disc(thePoints)
-  local aPoints = naivecgl.Naive_XYArray:new(thePoints)
-  local anOrigin = ffi.new("Naive_Point2d_t")
-  local aRadius = ffi.new("double[1]", 0)
-  check_code(naivecgl.NS.Naive_Geom2dAPI_enclosing_disc(aPoints:size(), aPoints:data(), anOrigin, aRadius))
-  return naivecgl.Naive_XY.take(anOrigin), aRadius[0]
+function naivecgl.geom2dapi.enclosing_disc(points)
+  local aPoints = naivecgl.Naive_XYArray:new(points)
+  local o = ffi.new("Naive_Point2d_t")
+  local r = ffi.new("double[1]", 0)
+  return naivecgl.NS.Naive_Geom2dAPI_enclosing_disc(aPoints:size(), aPoints:data(), o, r),
+      naivecgl.Naive_XY.take(o), r[0]
 end
 
 --------------------------------------------------------------------------------
---                    naivecgl::tessellation::Sphere                          --
+--                        naivecgl::tessellation                              --
 --------------------------------------------------------------------------------
 
 ---Calculates the tetrasphere with a tessellation level.
----@param theCenter naivecgl.Naive_XYZ
----@param theRadius number
----@param theLevel integer
----@return naivecgl.Naive_Poly
-function naivecgl.tessellation.make_tetrasphere(theCenter, theRadius, theLevel)
-  local aPoly = ffi.new "Naive_Poly_t[1]"
-  check_code(naivecgl.NS.Naive_Tessellation_make_tetrasphere(theCenter:data(), theRadius, theLevel, aPoly))
-  return naivecgl.Naive_Poly.take(aPoly[0])
+---@param center naivecgl.Naive_XYZ
+---@param radius number
+---@param level integer
+---@return integer code
+---@return integer poly
+function naivecgl.tessellation.make_tetrasphere(center, radius, level)
+  local poly = ffi.new("Naive_Poly_t[1]")
+  return naivecgl.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, poly), poly[0]
 end
 
 --------------------------------------------------------------------------------
