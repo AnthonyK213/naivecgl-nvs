@@ -25,27 +25,19 @@ for i = 1, nbPoints do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local aCH2D = naivecgl.bndshape.ConvexHull2D.new(aPoints)
-local aCode = aCH2D:Perform()
-local convexIndices = aCH2D:ConvexIndices()
-aCH2D:Dispose()
+local convexIndices = naivecgl.geom2dapi.convex_hull(aPoints)
+local count = #convexIndices
 
-if aCode == naivecgl.NS.Naive_Code_ok then
-  local count = #convexIndices
+for i = 1, count do
+  local thisIndex = convexIndices[i]
+  local nextIndex = convexIndices[i % count + 1]
 
-  for i = 1, count do
-    local thisIndex = convexIndices[i]
-    local nextIndex = convexIndices[i % count + 1]
+  local p1 = gp_Pnt(aPoints[thisIndex]:x(), aPoints[thisIndex]:y(), 0)
+  local p2 = gp_Pnt(aPoints[nextIndex]:x(), aPoints[nextIndex]:y(), 0)
 
-    local p1 = gp_Pnt(aPoints[thisIndex]:X(), aPoints[thisIndex]:Y(), 0)
-    local p2 = gp_Pnt(aPoints[nextIndex]:X(), aPoints[nextIndex]:Y(), 0)
-
-    local anAttr = Ghost_Attribute()
-    anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
-    __ghost__:AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), anAttr, false)
-  end
-else
-  print("Failed", aCode)
+  local anAttr = Ghost_Attribute()
+  anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))
+  __ghost__:AddShape(BRepBuilderAPI_MakeEdge(p1, p2):Edge(), anAttr, false)
 end
 
 doc:UpdateView()

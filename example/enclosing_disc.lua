@@ -28,12 +28,9 @@ for i = 1, nbPoints do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local aDisc = naivecgl.bndshape.EnclosingDisc.new()
-aDisc:ReBuild(aPoints)
-local o, r = aDisc:Circle()
-aDisc:Dispose()
+local o, r = naivecgl.geom2dapi.enclosing_disc(aPoints)
 
-local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:X(), o:Y(), 0), gp.DZ()), r)
+local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:x(), o:y(), 0), gp.DZ()), r)
 local edge = BRepBuilderAPI_MakeEdge(circle):Edge()
 local anAttr = Ghost_Attribute()
 anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED))

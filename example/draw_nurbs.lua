@@ -31,19 +31,16 @@ end
 ---@param theXYZ naivecgl.Naive_XYZ
 ---@return gp_Pnt
 local function xyz_to_pnt(theXYZ)
-  return gp_Pnt(theXYZ:X(), theXYZ:Y(), theXYZ:Z())
+  return gp_Pnt(theXYZ:x(), theXYZ:y(), theXYZ:z())
 end
 
 ---
 ---@param theCrv naivecgl.Naive_NurbsCurve
 local function display_nurbs_curve(theCrv, theN)
   theN = theN or 64
-  local nbPoles = theCrv:NbPoles()
-  local aPoles = theCrv:Poles()
-  -- ---@type naivecgl.Naive_XYZ[]
-  -- local aPoles = {}
-  local t0 = theCrv:FirstParameter()
-  local t1 = theCrv:LastParameter()
+  local aPoles = theCrv:ask_poles()
+  local nbPoles = aPoles:size()
+  local t0, t1 = theCrv:ask_bound()
 
   local pAttr = Ghost_Attribute()
   pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
@@ -51,7 +48,7 @@ local function display_nurbs_curve(theCrv, theN)
   -- Draw control points.
 
   for i = 1, nbPoles do
-    local aPole = aPoles:Value(i)
+    local aPole = aPoles:value(i)
     local pole = BRepPrimAPI_MakeSphere(xyz_to_pnt(aPole), 0.3):Shape()
     __ghost__:AddShape(pole, pAttr, false)
   end
@@ -61,19 +58,19 @@ local function display_nurbs_curve(theCrv, theN)
   local cpAttr = Ghost_Attribute()
   cpAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
   for i = 1, nbPoles - 1 do
-    local aThis = aPoles:Value(i)
-    local aNext = aPoles:Value(i + 1)
+    local aThis = aPoles:value(i)
+    local aNext = aPoles:value(i + 1)
     local cp = BRepBuilderAPI_MakeEdge(xyz_to_pnt(aThis), xyz_to_pnt(aNext)):Edge()
     __ghost__:AddShape(cp, cpAttr, false)
   end
 
   -- Draw curve.
 
-  local prevPnt = xyz_to_pnt(theCrv:PointAt(t0))
+  local prevPnt = xyz_to_pnt(theCrv:evaluate(t0, 0):value(1))
   local segAttr = Ghost_Attribute()
   segAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLACK))
   for i = 1, theN do
-    local aPnt = xyz_to_pnt(theCrv:PointAt(t0 + i * (t1 - t0) / theN))
+    local aPnt = xyz_to_pnt(theCrv:evaluate(t0 + i * (t1 - t0) / theN, 0):value(1))
     if aPnt then
       local aSeg = BRepBuilderAPI_MakeEdge(prevPnt, aPnt):Shape()
       __ghost__:AddShape(aSeg, segAttr, false)
@@ -83,11 +80,11 @@ local function display_nurbs_curve(theCrv, theN)
     end
   end
 
-  local aKnots = theCrv:Knots()
+  local aKnots = theCrv:ask_knots()
 
   -- Draw knots.
-  for i = 1, theCrv:NbKnots() do
-    local aPnt = xyz_to_pnt(theCrv:PointAt(aKnots:Value(i)))
+  for i = 1, aKnots:size() do
+    local aPnt = xyz_to_pnt(theCrv:evaluate(aKnots:value(i), 0):value(1))
     if aPnt then
       local aVert = BRepBuilderAPI_MakeVertex(aPnt):Shape()
       __ghost__:AddShape(aVert, Ghost_Attribute(), false)
@@ -112,7 +109,7 @@ local function make_nurbs_curve(thePoles, theWeights, theKnots, theMults, theDeg
   if theCheck then
     local poles = {}
     for i, p in ipairs(thePoles) do
-      poles[i] = gp_Pnt(p:X(), p:Y(), p:Z())
+      poles[i] = gp_Pnt(p:x(), p:y(), p:z())
     end
     local aBS = Geom_BSplineCurve(poles, theWeights, theKnots, theMults, theDegree, false, false)
     local aShape = BRepBuilderAPI_MakeEdge(aBS):Edge()
@@ -149,20 +146,20 @@ local function draw_nurbs_curve(N)
 
   local vecRatio = 0.1
   local t = 0.42
-  local aD = aNurbsCurve:DerivativeAt(t, 2)
-  local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
+  local aD = aNurbsCurve:evaluate(t, 2)
+  local aP = gp_Pnt(aD:value(1):x(), aD:value(1):y(), aD:value(1):z())
 
   local anVecAttr = Ghost_AttrOfVector()
   anVecAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-  for i = 2, aD:Size() do
-    local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
+  for i = 2, aD:size() do
+    local aV = gp_Vec(aD:value(i):x(), aD:value(i):y(), aD:value(i):z())
     __ghost__:AddVector(aV:Multiplied(vecRatio), aP, anVecAttr, false)
   end
 
   -- Check!
   local poles = {}
   for i, p in ipairs(aPoles) do
-    poles[i] = gp_Pnt(p:X(), p:Y(), p:Z())
+    poles[i] = gp_Pnt(p:x(), p:y(), p:z())
   end
 
   if aBS then
@@ -204,7 +201,7 @@ local function draw_nurbs_surface(N)
 
   for _, c in ipairs(aPoles) do
     for _, p in ipairs(c) do
-      local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:X(), p:Y(), p:Z()), 0.3):Shape()
+      local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:x(), p:y(), p:z()), 0.3):Shape()
       __ghost__:AddShape(pole, pAttr, false)
     end
   end
@@ -219,15 +216,15 @@ local function draw_nurbs_surface(N)
       local aNext = aColThis[j + 1]
       if aNext then
         local cp = BRepBuilderAPI_MakeEdge(
-          gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
-          gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+          gp_Pnt(aThis:x(), aThis:y(), aThis:z()),
+          gp_Pnt(aNext:x(), aNext:y(), aNext:z())):Edge()
         __ghost__:AddShape(cp, cpAttr, false)
       end
       if aColNext then
         aNext = aColNext[j]
         local cp = BRepBuilderAPI_MakeEdge(
-          gp_Pnt(aThis:X(), aThis:Y(), aThis:Z()),
-          gp_Pnt(aNext:X(), aNext:Y(), aNext:Z())):Edge()
+          gp_Pnt(aThis:x(), aThis:y(), aThis:z()),
+          gp_Pnt(aNext:x(), aNext:y(), aNext:z())):Edge()
         __ghost__:AddShape(cp, cpAttr, false)
       end
     end
@@ -235,9 +232,9 @@ local function draw_nurbs_surface(N)
 
   for i = 0, N do
     for j = 0, N do
-      local aPnt = aNurbsSurface:PointAt(i / N, j / N)
+      local aPnt = aNurbsSurface:evaluate(i / N, j / N, 0):value(1)
       if aPnt then
-        local aVert = BRepBuilderAPI_MakeVertex(gp_Pnt(aPnt:X(), aPnt:Y(), aPnt:Z())):Vertex()
+        local aVert = BRepBuilderAPI_MakeVertex(gp_Pnt(aPnt:x(), aPnt:y(), aPnt:z())):Vertex()
         doc:Objects():AddShape(aVert, LODoc_Attribute(), false)
       end
     end
@@ -245,13 +242,13 @@ local function draw_nurbs_surface(N)
 
   local u = 0.1
   local v = 0.4
-  local aD = aNurbsSurface:Evaluate(u, v, 2)
-  local aP = gp_Pnt(aD:Value(1):X(), aD:Value(1):Y(), aD:Value(1):Z())
+  local aD = aNurbsSurface:evaluate(u, v, 2)
+  local aP = gp_Pnt(aD:value(1):x(), aD:value(1):y(), aD:value(1):z())
 
   local anAttr = Ghost_AttrOfVector()
   anAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-  for i = 2, aD:Size() do
-    local aV = gp_Vec(aD:Value(i):X(), aD:Value(i):Y(), aD:Value(i):Z())
+  for i = 2, aD:size() do
+    local aV = gp_Vec(aD:value(i):x(), aD:value(i):y(), aD:value(i):z())
     __ghost__:AddVector(aV, aP, anAttr, false)
   end
 
@@ -260,7 +257,7 @@ local function draw_nurbs_surface(N)
   for i, col in ipairs(aPoles) do
     local c = {}
     for j, item in ipairs(col) do
-      c[j] = gp_Pnt(item:X(), item:Y(), item:Z())
+      c[j] = gp_Pnt(item:x(), item:y(), item:z())
     end
     poles[i] = c
   end
@@ -287,16 +284,16 @@ local function nurbs_curve_insert_knot()
   local aMults = { 4, 1, 1, 4 }
   local aDegree = 3
   local aNurbsCurve, aBS = make_nurbs_curve(aPoles, aWeights, aKnots, aMults, aDegree)
-  aNurbsCurve:InsertKnot(0.7, 2)
+  aNurbsCurve:Insert_knot(0.7, 2)
   -- aNurbsCurve:IncreaseMultiplicity(2, 2)
   -- __ghost__:Clear(false)
   display_nurbs_curve(aNurbsCurve)
 
   local t = 0.7
-  local aC = aNurbsCurve:CurvatureAt(t)
-  local aP = aNurbsCurve:PointAt(t)
+  local aC = aNurbsCurve:curvature_at(t)
+  local aP = aNurbsCurve:evaluate(t, 0):value(1)
   if aC and aP then
-    local aV = gp_Vec(aC:X(), aC:Y(), aC:Z())
+    local aV = gp_Vec(aC:x(), aC:y(), aC:z())
     local o = xyz_to_pnt(aP)
     local r = 1 / aV:Magnitude()
     aV:Multiply(r * r)

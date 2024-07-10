@@ -12,13 +12,13 @@ doc:Objects():Clear(false)
 if not _G.__ghost__ then _G.__ghost__ = Naivis.Ghost.NewDocument() end
 __ghost__:Clear(false)
 
-local tetrasphere = naivecgl.tessellation.Naive_Tessellation_Sphere_TetraSphere(naivecgl.Naive_XYZ(), 10, 10)
-local aVertices = tetrasphere:Vertices()
-local aTriangles = tetrasphere:Triangles()
+local tetrasphere = naivecgl.tessellation.make_tetrasphere(naivecgl.Naive_XYZ(), 10, 10)
+local aVertices = tetrasphere:ask_vertices()
+local aTriangles = tetrasphere:ask_triangles()
 
 local vList = {}
-for i = 1, aVertices:Size() do
-  vList[i] = gp_Pnt(aVertices:Value(i):X(), aVertices:Value(i):Y(), aVertices:Value(i):Z())
+for i = 1, aVertices:size() do
+  vList[i] = gp_Pnt(aVertices:value(i):x(), aVertices:value(i):y(), aVertices:value(i):z())
 end
 
 local tList = {}
