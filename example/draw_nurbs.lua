@@ -15,7 +15,8 @@ local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 local gp_Vec = nvs.occ.gp.gp_Vec
 
-local P3 = naivecgl.Naive_XYZ
+local P3 = naivecgl.XYZ
+local unwrap = naivecgl.util.unwrap
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -27,31 +28,19 @@ if Naivis then
 end
 
 ---
----@param xyz naivecgl.Naive_XYZ
+---@param xyz naivecgl.XYZ
 ---@return gp_Pnt
 local function xyz_to_pnt(xyz)
   return gp_Pnt(xyz:x(), xyz:y(), xyz:z())
-end
-
----
----@generic T
----@param code integer
----@param ... T
----@return T
-local function unwrap(code, ...)
-  if code ~= naivecgl.enum.Naive_Code_ok then
-    error(code)
-  end
-  return ...
 end
 
 ---comment
 ---@param curve integer
 ---@param t number
 ---@return integer
----@return naivecgl.Naive_XYZ
+---@return naivecgl.XYZ
 local function curve_point_at(curve, t)
-  local code, result = naivecgl.Naive_Curve.evaluate(curve, t, 0)
+  local code, result = naivecgl.Curve.evaluate(curve, t, 0)
   return code, result:value(1)
 end
 
@@ -61,9 +50,9 @@ end
 local function display_nurbs_curve(nurbs_curve, n_div)
   n_div = n_div or 64
 
-  local poles = unwrap(naivecgl.Naive_NurbsCurve.ask_poles(nurbs_curve))
+  local poles = unwrap(naivecgl.NurbsCurve.ask_poles(nurbs_curve))
   local n_poles = poles:size()
-  local t0, t1 = unwrap(naivecgl.Naive_Curve.ask_bound(nurbs_curve))
+  local t0, t1 = unwrap(naivecgl.Curve.ask_bound(nurbs_curve))
 
   local p_attr = Ghost_Attribute()
   p_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
@@ -103,7 +92,7 @@ local function display_nurbs_curve(nurbs_curve, n_div)
     end
   end
 
-  local knots = unwrap(naivecgl.Naive_NurbsCurve.ask_knots(nurbs_curve))
+  local knots = unwrap(naivecgl.NurbsCurve.ask_knots(nurbs_curve))
 
   -- Draw knots.
   for i = 1, knots:size() do
@@ -116,7 +105,7 @@ local function display_nurbs_curve(nurbs_curve, n_div)
 end
 
 ---
----@param poles naivecgl.Naive_XYZ[]
+---@param poles naivecgl.XYZ[]
 ---@param weights number[]
 ---@param knots number[]
 ---@param mults integer[]
@@ -126,7 +115,7 @@ end
 ---@return integer
 ---@return Geom_BSplineCurve?
 local function make_nurbs_curve(poles, weights, knots, mults, degree, check, n_div)
-  local nurbs_curve = unwrap(naivecgl.Naive_NurbsCurve.new(poles, weights, knots, mults, degree))
+  local nurbs_curve = unwrap(naivecgl.NurbsCurve.new(poles, weights, knots, mults, degree))
   display_nurbs_curve(nurbs_curve, n_div)
 
   if check then
@@ -169,7 +158,7 @@ local function draw_nurbs_curve(n_div)
 
   local vec_ratio = 0.1
   local t = 0.42
-  local result = unwrap(naivecgl.Naive_Curve.evaluate(nurbs_curve, t, 2))
+  local result = unwrap(naivecgl.Curve.evaluate(nurbs_curve, t, 2))
   local point = gp_Pnt(result:value(1):x(), result:value(1):y(), result:value(1):z())
 
   local vec_attr = Ghost_AttrOfVector()
@@ -209,7 +198,7 @@ local function draw_nurbs_surface(n_div)
   local knots_v = { 0, 1 }
   local mults_u = { 3, 3 }
   local mults_v = { 3, 3 }
-  local nurbs_surface = unwrap(naivecgl.Naive_NurbsSurface.new(
+  local nurbs_surface = unwrap(naivecgl.NurbsSurface.new(
     poles, weights,
     knots_u, knots_v, mults_u, mults_v,
     degree_u, degree_v))
@@ -250,7 +239,7 @@ local function draw_nurbs_surface(n_div)
 
   for i = 0, n_div do
     for j = 0, n_div do
-      local pnt = unwrap(naivecgl.Naive_Surface.evaluate(nurbs_surface, i / n_div, j / n_div, 0)):value(1)
+      local pnt = unwrap(naivecgl.Surface.evaluate(nurbs_surface, i / n_div, j / n_div, 0)):value(1)
       if pnt then
         local vert = BRepBuilderAPI_MakeVertex(gp_Pnt(pnt:x(), pnt:y(), pnt:z())):Vertex()
         doc:Objects():AddShape(vert, LODoc_Attribute(), false)
@@ -260,7 +249,7 @@ local function draw_nurbs_surface(n_div)
 
   local u = 0.1
   local v = 0.4
-  local d2 = unwrap(naivecgl.Naive_Surface.evaluate(nurbs_surface, u, v, 2))
+  local d2 = unwrap(naivecgl.Surface.evaluate(nurbs_surface, u, v, 2))
   local p = gp_Pnt(d2:value(1):x(), d2:value(1):y(), d2:value(1):z())
 
   local attr = Ghost_AttrOfVector()
@@ -302,13 +291,13 @@ local function nurbs_curve_insert_knot()
   local mults = { 4, 1, 1, 4 }
   local degree = 3
   local nurbs_curve, _ = make_nurbs_curve(poles, weights, knots, mults, degree)
-  local code = naivecgl.Naive_NurbsCurve.insert_knot(nurbs_curve, 0.7, 2)
+  local _ = naivecgl.NurbsCurve.insert_knot(nurbs_curve, 0.7, 2)
   -- nurbs_curve:IncreaseMultiplicity(2, 2)
   -- __ghost__:Clear(false)
   display_nurbs_curve(nurbs_curve)
 
   local t = 0.7
-  local curvature = unwrap(naivecgl.Naive_Curve.curvature_at(nurbs_curve, t))
+  local curvature = unwrap(naivecgl.Curve.curvature_at(nurbs_curve, t))
   local point = unwrap(curve_point_at(nurbs_curve, t))
   local cvt_vec = gp_Vec(curvature:x(), curvature:y(), curvature:z())
   local cvt_o = xyz_to_pnt(point)
