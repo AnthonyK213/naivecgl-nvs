@@ -499,8 +499,12 @@ Naive_Code_t Naive_Tessellation_make_tetrasphere(
 end
 
 setmetatable(naivecgl.enum, {
-  __index = function(_, e)
-    return naivecgl.NS[e]
+  __index = function(_, enum_class)
+    return setmetatable({ __ec__ = enum_class }, {
+      __index = function(o, enum_name)
+        return naivecgl.NS["Naive_" .. o.__ec__ .. "_" .. enum_name]
+      end
+    })
   end
 })
 
@@ -1160,7 +1164,7 @@ end
 ---@param ... T
 ---@return T
 function naivecgl.util.unwrap(code, ...)
-  if code ~= naivecgl.enum.Naive_Code_ok then
+  if code ~= naivecgl.NS.Naive_Code_ok then
     error(code)
   end
   return ...
