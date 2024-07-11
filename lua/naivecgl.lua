@@ -460,6 +460,7 @@ Naive_Code_t Naive_Poly_new(const int /* n_vertices */,
                                       const Naive_Point3d_t * /* vertices */,
                                       const int /* n_triangles */,
                                       const Naive_Triangle_t * /* triangles */,
+                                      const int /* i_offset */,
                                       Naive_Poly_t *const /* poly */);
 
 Naive_Code_t Naive_Poly_is_valid(
@@ -1048,22 +1049,14 @@ end
 
 ---Constructor.
 ---@param vertices naivecgl.XYZ[]
----@param triangles integer[][] 1-indexed
+---@param triangles naivecgl.Triangle[]
 ---@return integer code
 ---@return integer poly
 function naivecgl.Poly.new(vertices, triangles)
   local aVerts = naivecgl.ArrayXYZ:new(vertices)
-
-  local nbTris = #triangles
-  local aTris = ffi.new("Naive_Triangle_t[?]", nbTris)
-  for i = 1, nbTris do
-    aTris[i - 1].n0 = triangles[i][1] - 1
-    aTris[i - 1].n1 = triangles[i][2] - 1
-    aTris[i - 1].n2 = triangles[i][3] - 1
-  end
-
+  local aTris = naivecgl.ArrayTriangle:new(triangles)
   local poly = ffi.new("Naive_Poly_t[1]", 0)
-  return naivecgl.NS.Naive_Poly_new(aVerts:size(), aVerts, nbTris, aTris, poly), poly[0]
+  return naivecgl.NS.Naive_Poly_new(aVerts:size(), aVerts, aTris:size(), aTris, 1, poly), poly[0]
 end
 
 ---
