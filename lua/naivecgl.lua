@@ -1,12 +1,13 @@
 local naivecgl = {}
 
+naivecgl.Class = {}
 naivecgl.Curve = {}
 naivecgl.Geometry = {}
 naivecgl.NurbsCurve = {}
 naivecgl.NurbsSurface = {}
 naivecgl.Object = {}
-naivecgl.Poly = {}
 naivecgl.Surface = {}
+naivecgl.Triangulation = {}
 naivecgl.enum = {}
 naivecgl.geom2dapi = {}
 naivecgl.tessellation = {}
@@ -54,8 +55,6 @@ function naivecgl:init()
 
   -- NaiveCGL_c_types.h
   ffi.cdef [[
-/* Naive_Code */
-
 typedef enum {
   Naive_Code_ok = 0,
   Naive_Code_err,
@@ -65,8 +64,9 @@ typedef enum {
   Naive_Code_invalid_value,
   Naive_Code_invalid_object,
   Naive_Code_invalid_tag,
-  Naive_Code_no_intersection,
-  Naive_Code_points_are_collinear = 2000,
+  Naive_Code_still_referenced,
+  Naive_Code_no_intersection = 2000,
+  Naive_Code_points_are_collinear,
   Naive_Code_points_are_coplanar,
   Naive_Code_index_out_of_range,
   Naive_Code_value_out_of_range,
@@ -97,15 +97,16 @@ typedef int Naive_Fin_t;
 typedef int Naive_Geometry_t;
 typedef int Naive_Line_t;
 typedef int Naive_Loop_t;
+typedef int Naive_Mesh_t;
 typedef int Naive_NurbsCurve_t;
 typedef int Naive_NurbsSurface_t;
 typedef int Naive_Object_t;
 typedef int Naive_Plane_t;
-typedef int Naive_Poly_t;
 typedef int Naive_Shell_t;
 typedef int Naive_Solid_t;
 typedef int Naive_Surface_t;
 typedef int Naive_Transform3d_t;
+typedef int Naive_Triangulation_t;
 typedef int Naive_Vertex_t;
 
 /* Naive_Logical_t */
@@ -223,7 +224,58 @@ typedef struct Naive_Circle2d_sf_s {
 /* Naive_Class */
 
 typedef enum {
-  Naive_Class_body = 0,
+  Naive_Class_null = 0,
+
+  Naive_Class_object,
+  Naive_Class_class,
+
+  Naive_Class_geometry2d,
+  Naive_Class_point2d,
+  Naive_Class_vector2d,
+  Naive_Class_curve2d,
+  Naive_Class_bounded_curve2d,
+  Naive_Class_nurbs_curve2d,
+  Naive_Class_trimmed_curve2d,
+  Naive_Class_conic2d,
+  Naive_Class_circle2d,
+  Naive_Class_ellipse2d,
+  Naive_Class_hyperbola2d,
+  Naive_Class_parabola2d,
+  Naive_Class_line2d,
+  Naive_Class_offset_curve2d,
+
+  Naive_Class_geometry,
+  Naive_Class_point3d,
+  Naive_Class_vector3d,
+  Naive_Class_transform3d,
+  Naive_Class_curve,
+  Naive_Class_bounded_curve,
+  Naive_Class_nurbs_curve,
+  Naive_Class_trimmed_curve,
+  Naive_Class_conic,
+  Naive_Class_circle,
+  Naive_Class_ellipse,
+  Naive_Class_hyperbola,
+  Naive_Class_parabola,
+  Naive_Class_line,
+  Naive_Class_offset_curve,
+  Naive_Class_surface,
+  Naive_Class_bounded_surface,
+  Naive_Class_nurbs_surface,
+  Naive_Class_rectangular_trimmed_surface,
+  Naive_Class_elementary_surface,
+  Naive_Class_conical_surface,
+  Naive_Class_cylindrical_surface,
+  Naive_Class_spherical_surface,
+  Naive_Class_toroidal_surface,
+  Naive_Class_plane,
+  Naive_Class_offset_surface,
+
+  Naive_Class_mesh,
+  Naive_Class_triangulation,
+
+  Naive_Class_topol,
+  Naive_Class_body,
   Naive_Class_solid,
   Naive_Class_shell,
   Naive_Class_face,
@@ -253,10 +305,10 @@ typedef int Naive_Orientation_t;
 /* Naive_Algorithm */
 
 typedef enum {
-  Naive_Algorithm_quick_hull = 0,
-  Naive_Algorithm_incremental,
-  Naive_Algorithm_graham_scan,
-  Naive_Algorithm_divide_and_conquer,
+  Naive_Algorithm_quick_hull_c = 0,
+  Naive_Algorithm_incremental_c,
+  Naive_Algorithm_graham_scan_c,
+  Naive_Algorithm_divide_and_conquer_c,
 } Naive_Algorithm;
 
 /* Naive_Algorithm_t */
@@ -333,6 +385,15 @@ Naive_Code_t Naive_Body_boolean(
     const Naive_Body_t * /* tools */,
     const Naive_Body_boolean_o_t * /* options */
 );
+
+/* Naive_Class */
+
+Naive_Code_t Naive_Class_ask_superclass(
+    Naive_Class_t /* class */, Naive_Class_t *const /* superclass */);
+
+Naive_Code_t Naive_Class_is_subclass(
+    Naive_Class_t /* may_be_subclass */, Naive_Class_t /* class */,
+    Naive_Logical_t *const /* is_subclass */);
 
 /* Naive_Curve */
 
@@ -440,6 +501,9 @@ Naive_Code_t Naive_NurbsSurface_ask_degree(
 
 /* Naive_Object */
 
+Naive_Code_t Naive_Object_ask_class(Naive_Object_t /* object */,
+                                              Naive_Class_t *const /* class */);
+
 Naive_Code_t Naive_Object_delete(Naive_Object_t /* object */);
 
 /* Naive_Plane */
@@ -454,28 +518,28 @@ Naive_Code_t Naive_Plane_distance(Naive_Plane_t /* plane */,
                                             const Naive_Point3d_t * /* point */,
                                             double *const /* distance */);
 
-/* Naive_Poly */
+/* Naive_Triangulation */
 
-Naive_Code_t Naive_Poly_new(const int /* n_vertices */,
-                                      const Naive_Point3d_t * /* vertices */,
-                                      const int /* n_triangles */,
-                                      const Naive_Triangle_t * /* triangles */,
-                                      const int /* i_offset */,
-                                      Naive_Poly_t *const /* poly */);
-
-Naive_Code_t Naive_Poly_is_valid(
-    Naive_Poly_t /* poly */, Naive_Logical_t *const /* is_valid */);
-
-Naive_Code_t Naive_Poly_clone(Naive_Poly_t /* poly */,
-                                        Naive_Poly_t *const /* clone */);
+Naive_Code_t Naive_Triangulation_new(
+    const int /* n_vertices */, const Naive_Point3d_t * /* vertices */,
+    const int /* n_triangles */, const Naive_Triangle_t * /* triangles */,
+    const int /* i_offset */, Naive_Triangulation_t *const /* triangulation */);
 
 Naive_Code_t
-Naive_Poly_ask_vertices(Naive_Poly_t /* poly */, int *const /* n_vertices */,
-                        Naive_Point3d_t *const /* vertices */);
+Naive_Triangulation_is_valid(Naive_Triangulation_t /* triangulation */,
+                             Naive_Logical_t *const /* is_valid */);
 
 Naive_Code_t
-Naive_Poly_ask_triangles(Naive_Poly_t /* poly */, int *const /* n_triangles */,
-                         Naive_Triangle_t *const /* triangles */);
+Naive_Triangulation_clone(Naive_Triangulation_t /* triangulation */,
+                          Naive_Triangulation_t *const /* clone */);
+
+Naive_Code_t Naive_Triangulation_ask_vertices(
+    Naive_Triangulation_t /* triangulation */, int *const /* n_vertices */,
+    Naive_Point3d_t *const /* vertices */);
+
+Naive_Code_t Naive_Triangulation_ask_triangles(
+    Naive_Triangulation_t /* triangulation */, int *const /* n_triangles */,
+    Naive_Triangle_t *const /* triangles */);
 
 /* Naive_Surface */
 
@@ -488,7 +552,7 @@ Naive_Code_t Naive_Surface_evaluate(
 
 Naive_Code_t Naive_Tessellation_make_tetrasphere(
     const Naive_Point3d_t * /* center */, const double /* radius */,
-    const int /* level */, Naive_Poly_t *const /* poly */);
+    const int /* level */, Naive_Triangulation_t *const /* triangulation */);
 ]]
 
   self.NS = ffi.load(get_dylib_path("NaiveCGL"))
@@ -859,6 +923,29 @@ naivecgl.ArrayXYZ = array_instantiate(naivecgl.XYZ)
 naivecgl.ArrayTriangle = array_instantiate(naivecgl.Triangle)
 
 --------------------------------------------------------------------------------
+--                                Naive_Class                                 --
+--------------------------------------------------------------------------------
+
+---
+---@param class integer
+---@return integer code
+---@return integer superclass
+function naivecgl.Class.ask_superclass(class)
+  local superclass = ffi.new("Naive_Class_t[1]", 0)
+  return naivecgl.NS.Naive_Class_ask_superclass(class, superclass), superclass[0]
+end
+
+---
+---@param may_be_subclass integer
+---@param class integer
+---@return integer code
+---@return boolean is_subclass
+function naivecgl.Class.is_subclass(may_be_subclass, class)
+  local is_subclass = ffi.new("Naive_Logical_t[1]", 0)
+  return naivecgl.NS.Naive_Class_is_subclass(may_be_subclass, class, is_subclass), is_subclass[0] == 1
+end
+
+--------------------------------------------------------------------------------
 --                                Naive_Curve                                 --
 --------------------------------------------------------------------------------
 
@@ -1043,39 +1130,17 @@ end
 ---
 ---@param object integer
 ---@return integer code
+---@return integer class
+function naivecgl.Object.ask_class(object)
+  local class = ffi.new("Naive_Class_t[1]", 0)
+  return naivecgl.NS.Naive_Object_ask_class(object, class), class[0]
+end
+
+---
+---@param object integer
+---@return integer code
 function naivecgl.Object.delete(object)
   return naivecgl.NS.Naive_Object_delete(object)
-end
-
---------------------------------------------------------------------------------
---                               Naive_Poly                                   --
---------------------------------------------------------------------------------
-
----Constructor.
----@param vertices naivecgl.XYZ[]
----@param triangles naivecgl.Triangle[]
----@return integer code
----@return integer poly
-function naivecgl.Poly.new(vertices, triangles)
-  local aVerts = naivecgl.ArrayXYZ:new(vertices)
-  local aTris = naivecgl.ArrayTriangle:new(triangles)
-  local poly = ffi.new("Naive_Poly_t[1]", 0)
-  return naivecgl.NS.Naive_Poly_new(aVerts:size(), aVerts, aTris:size(), aTris, 1, poly), poly[0]
-end
-
----
----@param poly integer
----@return integer code
----@return naivecgl.ArrayXYZ
-function naivecgl.Poly.ask_vertices(poly)
-  return ask_array(poly, "Naive_Poly_ask_vertices", naivecgl.ArrayXYZ, 0)
-end
-
----
----@return integer code
----@return naivecgl.ArrayTriangle triangles
-function naivecgl.Poly.ask_triangles(poly)
-  return ask_array(poly, "Naive_Poly_ask_triangles", naivecgl.ArrayTriangle, 0)
 end
 
 --------------------------------------------------------------------------------
@@ -1100,6 +1165,38 @@ function naivecgl.Surface.evaluate(surface, u, v, n_derivative)
 end
 
 --------------------------------------------------------------------------------
+--                            Naive_Triangulation                             --
+--------------------------------------------------------------------------------
+
+---Constructor.
+---@param vertices naivecgl.XYZ[]
+---@param triangles naivecgl.Triangle[]
+---@return integer code
+---@return integer triangulation
+function naivecgl.Triangulation.new(vertices, triangles)
+  local aVerts = naivecgl.ArrayXYZ:new(vertices)
+  local aTris = naivecgl.ArrayTriangle:new(triangles)
+  local triangulation = ffi.new("Naive_Triangulation_t[1]", 0)
+  return naivecgl.NS.Naive_Triangulation_new(aVerts:size(), aVerts, aTris:size(), aTris, 1, triangulation),
+      triangulation[0]
+end
+
+---
+---@param triangulation integer
+---@return integer code
+---@return naivecgl.ArrayXYZ
+function naivecgl.Triangulation.ask_vertices(triangulation)
+  return ask_array(triangulation, "Naive_Triangulation_ask_vertices", naivecgl.ArrayXYZ, 0)
+end
+
+---
+---@return integer code
+---@return naivecgl.ArrayTriangle triangles
+function naivecgl.Triangulation.ask_triangles(triangulation)
+  return ask_array(triangulation, "Naive_Triangulation_ask_triangles", naivecgl.ArrayTriangle, 0)
+end
+
+--------------------------------------------------------------------------------
 --                           naivecgl::geom2dapi                              --
 --------------------------------------------------------------------------------
 
@@ -1113,7 +1210,7 @@ function naivecgl.geom2dapi.convex_hull(points, algo)
   local n_convex_points = ffi.new("int[1]")
   local convex_indices = ffi.new("int*[1]")
   local code = naivecgl.NS.Naive_Geom2dAPI_convex_hull(point_array:size(), point_array:data(),
-    algo or naivecgl.NS.Naive_Algorithm_quick_hull, n_convex_points, convex_indices, nil)
+    algo or naivecgl.NS.Naive_Algorithm_quick_hull_c, n_convex_points, convex_indices, nil)
 
   local result = {}
   if code == naivecgl.NS.Naive_Code_ok then
@@ -1148,10 +1245,10 @@ end
 ---@param radius number
 ---@param level integer
 ---@return integer code
----@return integer poly
+---@return integer triangulation
 function naivecgl.tessellation.make_tetrasphere(center, radius, level)
-  local poly = ffi.new("Naive_Poly_t[1]", 0)
-  return naivecgl.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, poly), poly[0]
+  local triangulation = ffi.new("Naive_Triangulation_t[1]", 0)
+  return naivecgl.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, triangulation), triangulation[0]
 end
 
 --------------------------------------------------------------------------------

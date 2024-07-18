@@ -16,8 +16,8 @@ local code
 
 local tetrasphere, vertices, triangles
 code, tetrasphere = naivecgl.tessellation.make_tetrasphere(naivecgl.XYZ(), 10, 10)
-code, vertices = naivecgl.Poly.ask_vertices(tetrasphere)
-code, triangles = naivecgl.Poly.ask_triangles(tetrasphere)
+code, vertices = naivecgl.Triangulation.ask_vertices(tetrasphere)
+code, triangles = naivecgl.Triangulation.ask_triangles(tetrasphere)
 naivecgl.Object.delete(tetrasphere)
 
 local offset_v = vertices:lower() - 1

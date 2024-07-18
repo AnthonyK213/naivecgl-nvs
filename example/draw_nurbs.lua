@@ -308,8 +308,42 @@ local function nurbs_curve_insert_knot()
   __ghost__:AddShape(shape, Ghost_Attribute(), false)
 end
 
+local function nurbs_curve_rtti()
+  local poles = {
+    P3(-10, 34, 6),
+    P3(-9, 15, -6),
+    P3(-6, 20, 1),
+    P3(0, 26, 2),
+    P3(4, 17, -3),
+    P3(10, 21, 10),
+  }
+  local weights = { 1.5, 2, 0.5, 1.1, 0.1, 1 }
+  local knots = { 0, 1, 2, 3 }
+  local mults = { 4, 1, 1, 4 }
+  local degree = 3
+  local nurbs_curve, _ = make_nurbs_curve(poles, weights, knots, mults, degree)
+
+  local code, class, superclass, is_subclass
+  code, class = naivecgl.Object.ask_class(nurbs_curve)
+  assert(code == naivecgl.enum.Code.ok)
+  assert(class == naivecgl.enum.Class.nurbs_curve)
+
+  code, superclass = naivecgl.Class.ask_superclass(class)
+  assert(code == naivecgl.enum.Code.ok)
+  assert(superclass == naivecgl.enum.Class.bounded_curve)
+
+  code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.curve)
+  assert(code == naivecgl.enum.Code.ok)
+  assert(is_subclass)
+
+  code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.bounded_surface)
+  assert(code == naivecgl.enum.Code.ok)
+  assert(not is_subclass)
+end
+
 draw_nurbs_curve()
 draw_nurbs_surface()
 nurbs_curve_insert_knot()
+nurbs_curve_rtti()
 
 doc:UpdateView()
