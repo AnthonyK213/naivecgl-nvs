@@ -40,7 +40,7 @@ end
 ---@return integer
 ---@return naivecgl.XYZ
 local function curve_point_at(curve, t)
-  local code, result = naivecgl.Curve.evaluate(curve, t, 0)
+  local code, result = naivecgl.Curve.eval(curve, t, 0)
   return code, result:value(1)
 end
 
@@ -158,7 +158,7 @@ local function draw_nurbs_curve(n_div)
 
   local vec_ratio = 0.1
   local t = 0.42
-  local result = unwrap(naivecgl.Curve.evaluate(nurbs_curve, t, 2))
+  local result = unwrap(naivecgl.Curve.eval(nurbs_curve, t, 2))
   local point = gp_Pnt(result:value(1):x(), result:value(1):y(), result:value(1):z())
 
   local vec_attr = Ghost_AttrOfVector()
@@ -239,7 +239,7 @@ local function draw_nurbs_surface(n_div)
 
   for i = 0, n_div do
     for j = 0, n_div do
-      local pnt = unwrap(naivecgl.Surface.evaluate(nurbs_surface, i / n_div, j / n_div, 0)):value(1)
+      local pnt = unwrap(naivecgl.Surface.eval(nurbs_surface, i / n_div, j / n_div, 0)):value(1)
       if pnt then
         local vert = BRepBuilderAPI_MakeVertex(gp_Pnt(pnt:x(), pnt:y(), pnt:z())):Vertex()
         doc:Objects():AddShape(vert, LODoc_Attribute(), false)
@@ -249,7 +249,7 @@ local function draw_nurbs_surface(n_div)
 
   local u = 0.1
   local v = 0.4
-  local d2 = unwrap(naivecgl.Surface.evaluate(nurbs_surface, u, v, 2))
+  local d2 = unwrap(naivecgl.Surface.eval(nurbs_surface, u, v, 2))
   local p = gp_Pnt(d2:value(1):x(), d2:value(1):y(), d2:value(1):z())
 
   local attr = Ghost_AttrOfVector()
@@ -297,7 +297,7 @@ local function nurbs_curve_insert_knot()
   display_nurbs_curve(nurbs_curve)
 
   local t = 0.7
-  local curvature = unwrap(naivecgl.Curve.curvature_at(nurbs_curve, t))
+  local curvature = unwrap(naivecgl.Curve.eval_curvature(nurbs_curve, t))
   local point = unwrap(curve_point_at(nurbs_curve, t))
   local cvt_vec = gp_Vec(curvature:x(), curvature:y(), curvature:z())
   local cvt_o = xyz_to_pnt(point)

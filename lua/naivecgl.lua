@@ -352,7 +352,7 @@ Naive_Code_t Naive_Body_ask_loops(Naive_Body_t /* body */,
                                             int *const /* n_loops */,
                                             Naive_Loop_t *const /* loops */);
 
-Naive_Code_t Naive_Body_ask_orientation(
+Naive_Code_t Naive_Body_ask_orient(
     Naive_Body_t /* body */, Naive_Orientation_t *const /* orientation */);
 
 Naive_Code_t Naive_Body_ask_shells(Naive_Body_t /* body */,
@@ -383,14 +383,15 @@ Naive_Code_t Naive_Class_is_subclass(
 Naive_Code_t Naive_Curve_ask_bound(
     Naive_Curve_t /* curve */, Naive_Interval_t *const /* bound */);
 
-Naive_Code_t
-Naive_Curve_curvature_at(Naive_Curve_t /* curve */, const double /* t */,
-                         Naive_Vector3d_t *const /* curvature */);
+Naive_Code_t Naive_Curve_eval(Naive_Curve_t /* curve */,
+                                        const double /* t */,
+                                        const int /* n_deriv */,
+                                        int *const /* n_result */,
+                                        Naive_Vector3d_t *const /* result */);
 
 Naive_Code_t
-Naive_Curve_evaluate(Naive_Curve_t /* curve */, const double /* t */,
-                     const int /* n_derivative */, int *const /* n_result */,
-                     Naive_Vector3d_t *const /* result */);
+Naive_Curve_eval_curvature(Naive_Curve_t /* curve */, const double /* t */,
+                           Naive_Vector3d_t *const /* curvature */);
 
 /* Naive_Geom2dAPI */
 
@@ -503,10 +504,12 @@ Naive_Code_t Naive_Plane_new(const Naive_Plane_sf_t * /* plane_sf */,
 
 /* Naive_Surface */
 
-Naive_Code_t Naive_Surface_evaluate(
-    Naive_Surface_t /* surface */, const double /* u */, const double /* v */,
-    const int /* n_derivative */, int *const /* n_result */,
-    Naive_Vector3d_t *const /* result */);
+Naive_Code_t Naive_Surface_eval(Naive_Surface_t /* surface */,
+                                          const double /* u */,
+                                          const double /* v */,
+                                          const int /* n_deriv */,
+                                          int *const /* n_result */,
+                                          Naive_Vector3d_t *const /* result */);
 
 /* Naive_Tessellation */
 
@@ -945,27 +948,27 @@ end
 ---
 ---@param curve integer
 ---@param t number
+---@param n_derivative integer
 ---@return integer code
----@return naivecgl.XYZ curvature
-function naivecgl.Curve.curvature_at(curve, t)
-  local curvature = ffi.new("Naive_Vector3d_t", { 0, 0, 0 })
-  return naivecgl.NS.Naive_Curve_curvature_at(curve, t, curvature), naivecgl.XYZ.take(curvature)
+---@return naivecgl.ArrayXYZ result
+function naivecgl.Curve.eval(curve, t, n_derivative)
+  local n_result = ffi.new("int[1]", 0)
+  local code = naivecgl.NS.Naive_Curve_eval(curve, t, n_derivative, n_result, nil)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
+  code = naivecgl.NS.Naive_Curve_eval(curve, t, n_derivative, n_result, result)
+  if code ~= naivecgl.NS.Naive_Code_ok then return code end
+  return code, naivecgl.ArrayXYZ:take(result, n_result[0])
 end
 
 ---
 ---@param curve integer
 ---@param t number
----@param n_derivative integer
 ---@return integer code
----@return naivecgl.ArrayXYZ result
-function naivecgl.Curve.evaluate(curve, t, n_derivative)
-  local n_result = ffi.new("int[1]", 0)
-  local code = naivecgl.NS.Naive_Curve_evaluate(curve, t, n_derivative, n_result, nil)
-  if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
-  code = naivecgl.NS.Naive_Curve_evaluate(curve, t, n_derivative, n_result, result)
-  if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  return code, naivecgl.ArrayXYZ:take(result, n_result[0])
+---@return naivecgl.XYZ curvature
+function naivecgl.Curve.eval_curvature(curve, t)
+  local curvature = ffi.new("Naive_Vector3d_t", { 0, 0, 0 })
+  return naivecgl.NS.Naive_Curve_eval_curvature(curve, t, curvature), naivecgl.XYZ.take(curvature)
 end
 
 --------------------------------------------------------------------------------
@@ -1137,12 +1140,12 @@ end
 ---@param n_derivative integer
 ---@return integer code
 ---@return naivecgl.ArrayXYZ result
-function naivecgl.Surface.evaluate(surface, u, v, n_derivative)
+function naivecgl.Surface.eval(surface, u, v, n_derivative)
   local n_result = ffi.new("int[1]", 0)
-  local code = naivecgl.NS.Naive_Surface_evaluate(surface, u, v, n_derivative, n_result, nil)
+  local code = naivecgl.NS.Naive_Surface_eval(surface, u, v, n_derivative, n_result, nil)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
   local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
-  code = naivecgl.NS.Naive_Surface_evaluate(surface, u, v, n_derivative, n_result, result)
+  code = naivecgl.NS.Naive_Surface_eval(surface, u, v, n_derivative, n_result, result)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
   return code, naivecgl.ArrayXYZ:take(result, n_result[0])
 end
