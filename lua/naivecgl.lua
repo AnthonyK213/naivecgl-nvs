@@ -8,6 +8,7 @@ naivecgl.NurbsSurface = {}
 naivecgl.Object = {}
 naivecgl.Surface = {}
 naivecgl.Triangulation = {}
+---@type table<string, table<string, integer>>
 naivecgl.enum = {}
 naivecgl.geom2dapi = {}
 naivecgl.tessellation = {}
@@ -624,7 +625,7 @@ end
 ---@return integer code
 ---@return naivecgl.Array array
 local function ask_array(tag, method, type_, low)
-  local n_array = ffi.new("int[1]")
+  local n_array = ffi.new("int[1]", 0)
   local array = ffi.new(ffi.typeof(get_ffi_type(type_.m_type) .. "*[1]"))
   local code = naivecgl.NS[method](tag, n_array, array)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
@@ -834,6 +835,7 @@ function naivecgl.Array:new(list, low)
 end
 
 ---
+---@private
 ---@param handle ffi.cdata*?
 ---@param size integer
 ---@param options? {low:integer?,free:function?}
@@ -1011,7 +1013,7 @@ end
 ---@return integer code
 ---@return integer degree
 function naivecgl.NurbsCurve.ask_degree(nurbs_curve)
-  local degree = ffi.new("int[1]")
+  local degree = ffi.new("int[1]", 0)
   return naivecgl.NS.Naive_NurbsCurve_ask_degree(nurbs_curve, degree), degree[0]
 end
 
@@ -1201,7 +1203,7 @@ end
 ---@return integer[] convex_indices
 function naivecgl.geom2dapi.convex_hull(points, algo)
   local point_array = naivecgl.ArrayXY:new(points)
-  local n_convex_points = ffi.new("int[1]")
+  local n_convex_points = ffi.new("int[1]", 0)
   local convex_indices = ffi.new("int*[1]")
   local code = naivecgl.NS.Naive_Geom2dAPI_convex_hull(point_array:size(), point_array:data(),
     algo or naivecgl.NS.Naive_Algorithm_quick_hull_c, n_convex_points, convex_indices, nil)
