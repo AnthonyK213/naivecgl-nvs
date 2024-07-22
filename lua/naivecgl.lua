@@ -335,33 +335,33 @@ typedef struct Naive_Body_boolean_o_s {
 
 Naive_Code_t Naive_Body_ask_edges(Naive_Body_t /* body */,
                                             int *const /* n_edges */,
-                                            Naive_Edge_t *const /* edges */);
+                                            Naive_Edge_t **const /* edges */);
 
 Naive_Code_t Naive_Body_ask_faces(Naive_Body_t /* body */,
                                             int *const /* n_faces */,
-                                            Naive_Face_t *const /* faces */);
+                                            Naive_Face_t **const /* faces */);
 
 Naive_Code_t Naive_Body_ask_fins(Naive_Body_t /* body */,
                                            int *const /* n_fins */,
-                                           Naive_Fin_t *const /* fins */);
+                                           Naive_Fin_t **const /* fins */);
 
 Naive_Code_t Naive_Body_ask_location(
     Naive_Body_t /* body */, Naive_Transform3d_t *const /* location */);
 
 Naive_Code_t Naive_Body_ask_loops(Naive_Body_t /* body */,
                                             int *const /* n_loops */,
-                                            Naive_Loop_t *const /* loops */);
+                                            Naive_Loop_t **const /* loops */);
 
 Naive_Code_t Naive_Body_ask_orient(
     Naive_Body_t /* body */, Naive_Orientation_t *const /* orientation */);
 
-Naive_Code_t Naive_Body_ask_shells(Naive_Body_t /* body */,
-                                             int *const /* n_shells */,
-                                             Naive_Shell_t *const /* shells */);
+Naive_Code_t
+Naive_Body_ask_shells(Naive_Body_t /* body */, int *const /* n_shells */,
+                      Naive_Shell_t **const /* shells */);
 
 Naive_Code_t
 Naive_Body_ask_vertices(Naive_Body_t /* body */, int *const /* n_vertices */,
-                        Naive_Vertex_t *const /* vertices */);
+                        Naive_Vertex_t **const /* vertices */);
 
 Naive_Code_t Naive_Body_boolean(
     Naive_Body_t /* target */, const int /* n_tools */,
@@ -386,8 +386,7 @@ Naive_Code_t Naive_Curve_ask_bound(
 Naive_Code_t Naive_Curve_eval(Naive_Curve_t /* curve */,
                                         const double /* t */,
                                         const int /* n_deriv */,
-                                        int *const /* n_result */,
-                                        Naive_Vector3d_t *const /* result */);
+                                        Naive_Vector3d_t /* p */[]);
 
 Naive_Code_t
 Naive_Curve_eval_curvature(Naive_Curve_t /* curve */, const double /* t */,
@@ -420,6 +419,9 @@ Naive_Code_t Naive_Line_new(const Naive_Line_sf_t * /* line_sf */,
 
 /* Naive_Memory */
 
+Naive_Code_t Naive_Memory_alloc(size_t /* nbytes */,
+                                          void **const /* pointer */);
+
 Naive_Code_t Naive_Memory_free(void * /* pointer */);
 
 /* Naive_NurbsCurve */
@@ -427,21 +429,21 @@ Naive_Code_t Naive_Memory_free(void * /* pointer */);
 Naive_Code_t Naive_NurbsCurve_ask_degree(
     Naive_NurbsCurve_t /* nurbs_curve */, int *const /* degree */);
 
-Naive_Code_t
-Naive_NurbsCurve_ask_knots(Naive_NurbsCurve_t /* nurbs_curve */,
-                           int *const /* n_knots */, double *const /* knots */);
+Naive_Code_t Naive_NurbsCurve_ask_knots(
+    Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_knots */,
+    double **const /* knots */);
 
 Naive_Code_t
 Naive_NurbsCurve_ask_mults(Naive_NurbsCurve_t /* nurbs_curve */,
-                           int *const /* n_mults */, int *const /* mults */);
+                           int *const /* n_mults */, int **const /* mults */);
 
 Naive_Code_t Naive_NurbsCurve_ask_poles(
     Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_poles */,
-    Naive_Point3d_t *const /* poles */);
+    Naive_Point3d_t **const /* poles */);
 
 Naive_Code_t Naive_NurbsCurve_ask_weights(
     Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_weights */,
-    double *const /* weights */);
+    double **const /* weights */);
 
 Naive_Code_t Naive_NurbsCurve_increase_degree(
     Naive_NurbsCurve_t /* nurbs_curve */, const int /* degree */);
@@ -507,9 +509,9 @@ Naive_Code_t Naive_Plane_new(const Naive_Plane_sf_t * /* plane_sf */,
 Naive_Code_t Naive_Surface_eval(Naive_Surface_t /* surface */,
                                           const double /* u */,
                                           const double /* v */,
-                                          const int /* n_deriv */,
-                                          int *const /* n_result */,
-                                          Naive_Vector3d_t *const /* result */);
+                                          const int /* n_u_deriv */,
+                                          const int /* n_v_deriv */,
+                                          Naive_Vector3d_t /* p */[]);
 
 /* Naive_Tessellation */
 
@@ -521,11 +523,11 @@ Naive_Code_t Naive_Tessellation_make_tetrasphere(
 
 Naive_Code_t Naive_Triangulation_ask_triangles(
     Naive_Triangulation_t /* triangulation */, int *const /* n_triangles */,
-    Naive_Triangle_t *const /* triangles */);
+    Naive_Triangle_t **const /* triangles */);
 
 Naive_Code_t Naive_Triangulation_ask_vertices(
     Naive_Triangulation_t /* triangulation */, int *const /* n_vertices */,
-    Naive_Point3d_t *const /* vertices */);
+    Naive_Point3d_t **const /* vertices */);
 
 Naive_Code_t
 Naive_Triangulation_clone(Naive_Triangulation_t /* triangulation */,
@@ -623,12 +625,13 @@ end
 ---@return naivecgl.Array array
 local function ask_array(tag, method, type_, low)
   local n_array = ffi.new("int[1]")
-  local code = naivecgl.NS[method](tag, n_array, nil)
+  local array = ffi.new(ffi.typeof(get_ffi_type(type_.m_type) .. "*[1]"))
+  local code = naivecgl.NS[method](tag, n_array, array)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  local array = ffi.new(ffi.typeof(get_ffi_type(type_.m_type) .. "[?]"), n_array[0])
-  code = naivecgl.NS[method](tag, n_array, array)
-  if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  return code, type_:take(array, n_array[0], low)
+  return code, type_:take(array[0], n_array[0], {
+    low = low,
+    free = naivecgl.NS.Naive_Memory_free,
+  })
 end
 
 ---@class naivecgl.XY
@@ -827,16 +830,24 @@ function naivecgl.Array:new(list, low)
   for i = 1, size do
     handle[i - 1] = get_ffi_data(list[i])
   end
-  return self:take(handle, size, low)
+  return self:take(handle, size, { low = low })
 end
 
 ---
 ---@param handle ffi.cdata*?
 ---@param size integer
----@param low? integer
+---@param options? {low:integer?,free:function?}
 ---@return naivecgl.Array
-function naivecgl.Array:take(handle, size, low)
-  local arr = { m_h = handle, m_size = size, m_low = low or 1 }
+function naivecgl.Array:take(handle, size, options)
+  options = options or { low = 1 }
+  if handle and options.free then
+    handle = ffi.gc(handle, options.free)
+  end
+  local arr = {
+    m_h = handle,
+    m_size = size,
+    m_low = options.low or 1,
+  }
   setmetatable(arr, self)
   return arr
 end
@@ -948,17 +959,15 @@ end
 ---
 ---@param curve integer
 ---@param t number
----@param n_derivative integer
+---@param n_deriv integer
 ---@return integer code
 ---@return naivecgl.ArrayXYZ result
-function naivecgl.Curve.eval(curve, t, n_derivative)
-  local n_result = ffi.new("int[1]", 0)
-  local code = naivecgl.NS.Naive_Curve_eval(curve, t, n_derivative, n_result, nil)
+function naivecgl.Curve.eval(curve, t, n_deriv)
+  local n_p = n_deriv + 1
+  local p = ffi.new("Naive_Vector3d_t[?]", n_p)
+  local code = naivecgl.NS.Naive_Curve_eval(curve, t, n_deriv, p)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
-  code = naivecgl.NS.Naive_Curve_eval(curve, t, n_derivative, n_result, result)
-  if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  return code, naivecgl.ArrayXYZ:take(result, n_result[0])
+  return code, naivecgl.ArrayXYZ:take(p, n_p)
 end
 
 ---
@@ -1137,31 +1146,30 @@ end
 ---@param surface integer
 ---@param u number
 ---@param v number
----@param n_derivative integer
+---@param n_u_deriv integer
+---@param n_v_deriv integer
 ---@return integer code
 ---@return naivecgl.ArrayXYZ result
-function naivecgl.Surface.eval(surface, u, v, n_derivative)
-  local n_result = ffi.new("int[1]", 0)
-  local code = naivecgl.NS.Naive_Surface_eval(surface, u, v, n_derivative, n_result, nil)
+function naivecgl.Surface.eval(surface, u, v, n_u_deriv, n_v_deriv)
+  local n_p = (n_u_deriv + 1) * (n_v_deriv + 1)
+  local p = ffi.new("Naive_Vector3d_t[?]", n_p)
+  local code = naivecgl.NS.Naive_Surface_eval(surface, u, v, n_u_deriv, n_v_deriv, p)
   if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  local result = ffi.new("Naive_Vector3d_t[?]", n_result[0])
-  code = naivecgl.NS.Naive_Surface_eval(surface, u, v, n_derivative, n_result, result)
-  if code ~= naivecgl.NS.Naive_Code_ok then return code end
-  return code, naivecgl.ArrayXYZ:take(result, n_result[0])
+  return code, naivecgl.ArrayXYZ:take(p, n_p)
 end
 
 --------------------------------------------------------------------------------
 --                            Naive_Triangulation                             --
 --------------------------------------------------------------------------------
 
----
+---0-indexed.
 ---@return integer code
 ---@return naivecgl.ArrayTriangle triangles
 function naivecgl.Triangulation.ask_triangles(triangulation)
   return ask_array(triangulation, "Naive_Triangulation_ask_triangles", naivecgl.ArrayTriangle, 0)
 end
 
----
+---0-indexed.
 ---@param triangulation integer
 ---@return integer code
 ---@return naivecgl.ArrayXYZ

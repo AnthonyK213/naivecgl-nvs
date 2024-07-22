@@ -239,7 +239,7 @@ local function draw_nurbs_surface(n_div)
 
   for i = 0, n_div do
     for j = 0, n_div do
-      local pnt = unwrap(naivecgl.Surface.eval(nurbs_surface, i / n_div, j / n_div, 0)):value(1)
+      local pnt = unwrap(naivecgl.Surface.eval(nurbs_surface, i / n_div, j / n_div, 0, 0)):value(1)
       if pnt then
         local vert = BRepBuilderAPI_MakeVertex(gp_Pnt(pnt:x(), pnt:y(), pnt:z())):Vertex()
         doc:Objects():AddShape(vert, LODoc_Attribute(), false)
@@ -249,7 +249,7 @@ local function draw_nurbs_surface(n_div)
 
   local u = 0.1
   local v = 0.4
-  local d2 = unwrap(naivecgl.Surface.eval(nurbs_surface, u, v, 2))
+  local d2 = unwrap(naivecgl.Surface.eval(nurbs_surface, u, v, 1, 1))
   local p = gp_Pnt(d2:value(1):x(), d2:value(1):y(), d2:value(1):z())
 
   local attr = Ghost_AttrOfVector()
