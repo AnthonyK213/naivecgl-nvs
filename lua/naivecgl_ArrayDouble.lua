@@ -1,6 +1,6 @@
-local Array = require("naivecgl_Array")
+local Array = require("ffi_util").Array
 
----@class naivecgl.ArrayDouble : naivecgl.Array<number>
+---@class naivecgl.ArrayDouble : ffi_util.Array<number>
 ArrayDouble = Array.instantiate("double")
 
 return ArrayDouble

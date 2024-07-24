@@ -529,28 +529,4 @@ Naive_Code_t Naive_Triangulation_create(
   end
 end
 
----
----@param object any
----@return ffi.cdata*
-function naivecgl_ffi.get_ffi_type(object)
-  if type(object) == "table" then
-    return object.m_type
-  elseif type(object) == "string" then
-    return object
-  else
-    error("Unknown ffi type")
-  end
-end
-
----
----@param object any
----@return any
-function naivecgl_ffi.get_ffi_data(object)
-  if type(object) == "table" then
-    return object:data()
-  else
-    return object
-  end
-end
-
 return naivecgl_ffi
