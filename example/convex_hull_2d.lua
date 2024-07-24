@@ -26,7 +26,7 @@ for i = 1, n_points do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local code, convex_indices = naivecgl.geom2dapi.convex_hull(points)
+local convex_indices = naivecgl.util.unwrap(naivecgl.geom2dapi.convex_hull(points))
 local n_convex_points = #convex_indices
 
 for i = 1, n_convex_points do

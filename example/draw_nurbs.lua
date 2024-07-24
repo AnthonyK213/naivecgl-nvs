@@ -115,7 +115,7 @@ end
 ---@return integer
 ---@return Geom_BSplineCurve?
 local function make_nurbs_curve(poles, weights, knots, mults, degree, check, n_div)
-  local nurbs_curve = unwrap(naivecgl.NurbsCurve.new(poles, weights, knots, mults, degree))
+  local nurbs_curve = unwrap(naivecgl.NurbsCurve.create(poles, weights, knots, mults, degree))
   display_nurbs_curve(nurbs_curve, n_div)
 
   if check then
@@ -154,29 +154,37 @@ local function draw_nurbs_curve(n_div)
   local knots = { 0, 0.25, 0.5, 0.75, 1 }
   local mults = { 3, 2, 2, 2, 3 }
   local degree = 2
-  local nurbs_curve, bs = make_nurbs_curve(poles, weights, knots, mults, degree, true)
+  local nurbs_curve = naivecgl.macro.Object.null
+  local bs
 
-  local vec_ratio = 0.1
-  local t = 0.42
-  local result = unwrap(naivecgl.Curve.eval(nurbs_curve, t, 2))
-  local point = gp_Pnt(result:value(1):x(), result:value(1):y(), result:value(1):z())
+  naivecgl.util.try(function()
+    nurbs_curve, bs = make_nurbs_curve(poles, weights, knots, mults, degree, true)
+    local vec_ratio = 0.1
+    local t = 0.42
+    local result = unwrap(naivecgl.Curve.eval(nurbs_curve, t, 2))
+    local point = gp_Pnt(result:value(1):x(), result:value(1):y(), result:value(1):z())
 
-  local vec_attr = Ghost_AttrOfVector()
-  vec_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-  for i = 2, result:size() do
-    local aV = gp_Vec(result:value(i):x(), result:value(i):y(), result:value(i):z())
-    __ghost__:AddVector(aV:Multiplied(vec_ratio), point, vec_attr, false)
-  end
+    local vec_attr = Ghost_AttrOfVector()
+    vec_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+    for i = 2, result:size() do
+      local aV = gp_Vec(result:value(i):x(), result:value(i):y(), result:value(i):z())
+      __ghost__:AddVector(aV:Multiplied(vec_ratio), point, vec_attr, false)
+    end
 
-  -- Check!
-  if bs then
-    local shape = BRepBuilderAPI_MakeEdge(bs):Edge()
-    local attr = Ghost_Attribute()
-    attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
-    local bs_d2 = bs:DN(t, 2)
-    __ghost__:AddShape(shape, attr, false)
-    __ghost__:AddVector(bs_d2:Multiplied(vec_ratio), bs:Value(t), Ghost_AttrOfVector(), false)
-  end
+    -- Check!
+    if bs then
+      local shape = BRepBuilderAPI_MakeEdge(bs):Edge()
+      local attr = Ghost_Attribute()
+      attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+      local bs_d2 = bs:DN(t, 2)
+      __ghost__:AddShape(shape, attr, false)
+      __ghost__:AddVector(bs_d2:Multiplied(vec_ratio), bs:Value(t), Ghost_AttrOfVector(), false)
+    end
+  end).catch(function(ex)
+    nvs.print(ex)
+  end).finally(function()
+    naivecgl.Object.delete(nurbs_curve)
+  end)
 end
 
 local function draw_nurbs_surface(n_div)
@@ -198,83 +206,91 @@ local function draw_nurbs_surface(n_div)
   local knots_v = { 0, 1 }
   local mults_u = { 3, 3 }
   local mults_v = { 3, 3 }
-  local nurbs_surface = unwrap(naivecgl.NurbsSurface.new(
-    poles, weights,
-    knots_u, knots_v, mults_u, mults_v,
-    degree_u, degree_v))
+  local nurbs_surface = naivecgl.macro.Object.null
 
-  local pAttr = Ghost_Attribute()
-  pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
+  naivecgl.util.try(function()
+    nurbs_surface = unwrap(naivecgl.NurbsSurface.create(
+      poles, weights,
+      knots_u, knots_v, mults_u, mults_v,
+      degree_u, degree_v))
 
-  for _, c in ipairs(poles) do
-    for _, p in ipairs(c) do
-      local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:x(), p:y(), p:z()), 0.3):Shape()
-      __ghost__:AddShape(pole, pAttr, false)
-    end
-  end
+    local pAttr = Ghost_Attribute()
+    pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
 
-  local cp_attr = Ghost_Attribute()
-  cp_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
-  for i = 1, #poles do
-    local col_this = poles[i]
-    local col_next = poles[i + 1]
-    for j = 1, #col_this do
-      local a_this = col_this[j]
-      local a_next = col_this[j + 1]
-      if a_next then
-        local cp = BRepBuilderAPI_MakeEdge(
-          gp_Pnt(a_this:x(), a_this:y(), a_this:z()),
-          gp_Pnt(a_next:x(), a_next:y(), a_next:z())):Edge()
-        __ghost__:AddShape(cp, cp_attr, false)
-      end
-      if col_next then
-        a_next = col_next[j]
-        local cp = BRepBuilderAPI_MakeEdge(
-          gp_Pnt(a_this:x(), a_this:y(), a_this:z()),
-          gp_Pnt(a_next:x(), a_next:y(), a_next:z())):Edge()
-        __ghost__:AddShape(cp, cp_attr, false)
+    for _, c in ipairs(poles) do
+      for _, p in ipairs(c) do
+        local pole = BRepPrimAPI_MakeSphere(gp_Pnt(p:x(), p:y(), p:z()), 0.3):Shape()
+        __ghost__:AddShape(pole, pAttr, false)
       end
     end
-  end
 
-  for i = 0, n_div do
-    for j = 0, n_div do
-      local pnt = unwrap(naivecgl.Surface.eval(nurbs_surface, i / n_div, j / n_div, 0, 0)):value(1)
-      if pnt then
-        local vert = BRepBuilderAPI_MakeVertex(gp_Pnt(pnt:x(), pnt:y(), pnt:z())):Vertex()
-        doc:Objects():AddShape(vert, LODoc_Attribute(), false)
+    local cp_attr = Ghost_Attribute()
+    cp_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
+    for i = 1, #poles do
+      local col_this = poles[i]
+      local col_next = poles[i + 1]
+      for j = 1, #col_this do
+        local a_this = col_this[j]
+        local a_next = col_this[j + 1]
+        if a_next then
+          local cp = BRepBuilderAPI_MakeEdge(
+            gp_Pnt(a_this:x(), a_this:y(), a_this:z()),
+            gp_Pnt(a_next:x(), a_next:y(), a_next:z())):Edge()
+          __ghost__:AddShape(cp, cp_attr, false)
+        end
+        if col_next then
+          a_next = col_next[j]
+          local cp = BRepBuilderAPI_MakeEdge(
+            gp_Pnt(a_this:x(), a_this:y(), a_this:z()),
+            gp_Pnt(a_next:x(), a_next:y(), a_next:z())):Edge()
+          __ghost__:AddShape(cp, cp_attr, false)
+        end
       end
     end
-  end
 
-  local u = 0.1
-  local v = 0.4
-  local d2 = unwrap(naivecgl.Surface.eval(nurbs_surface, u, v, 1, 1))
-  local p = gp_Pnt(d2:value(1):x(), d2:value(1):y(), d2:value(1):z())
-
-  local attr = Ghost_AttrOfVector()
-  attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
-  for i = 2, d2:size() do
-    local aV = gp_Vec(d2:value(i):x(), d2:value(i):y(), d2:value(i):z())
-    __ghost__:AddVector(aV, p, attr, false)
-  end
-
-  -- Check!
-  local poles_ = {}
-  for i, col in ipairs(poles) do
-    local c = {}
-    for j, item in ipairs(col) do
-      c[j] = xyz_to_pnt(item)
+    for i = 0, n_div do
+      for j = 0, n_div do
+        local pnt = unwrap(naivecgl.Surface.eval(nurbs_surface, i / n_div, j / n_div, 0, 0)):value(1)
+        if pnt then
+          local vert = BRepBuilderAPI_MakeVertex(gp_Pnt(pnt:x(), pnt:y(), pnt:z())):Vertex()
+          doc:Objects():AddShape(vert, LODoc_Attribute(), false)
+        end
+      end
     end
-    poles_[i] = c
-  end
-  local bs = Geom_BSplineSurface(poles_, weights, knots_u, knots_v, mults_u, mults_v, degree_u, degree_v, false, false)
-  local shape = BRepBuilderAPI_MakeFace(bs, 1e-2):Face()
-  local bs_attr = Ghost_Attribute()
-  bs_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
-  local bs_d2 = bs:DN(u, v, 1, 1)
-  __ghost__:AddShape(shape, bs_attr, false)
-  __ghost__:AddVector(bs_d2, bs:Value(u, v), Ghost_AttrOfVector(), false)
+
+    local u = 0.1
+    local v = 0.4
+    local d2 = unwrap(naivecgl.Surface.eval(nurbs_surface, u, v, 1, 1))
+    local p = gp_Pnt(d2:value(1):x(), d2:value(1):y(), d2:value(1):z())
+
+    local attr = Ghost_AttrOfVector()
+    attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_BLUE))
+    for i = 2, d2:size() do
+      local aV = gp_Vec(d2:value(i):x(), d2:value(i):y(), d2:value(i):z())
+      __ghost__:AddVector(aV, p, attr, false)
+    end
+
+    -- Check!
+    local poles_ = {}
+    for i, col in ipairs(poles) do
+      local c = {}
+      for j, item in ipairs(col) do
+        c[j] = xyz_to_pnt(item)
+      end
+      poles_[i] = c
+    end
+    local bs = Geom_BSplineSurface(poles_, weights, knots_u, knots_v, mults_u, mults_v, degree_u, degree_v, false, false)
+    local shape = BRepBuilderAPI_MakeFace(bs, 1e-2):Face()
+    local bs_attr = Ghost_Attribute()
+    bs_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_RED));
+    local bs_d2 = bs:DN(u, v, 1, 1)
+    __ghost__:AddShape(shape, bs_attr, false)
+    __ghost__:AddVector(bs_d2, bs:Value(u, v), Ghost_AttrOfVector(), false)
+  end).catch(function(ex)
+    nvs.print(ex)
+  end).finally(function()
+    naivecgl.Object.delete(nurbs_surface)
+  end)
 end
 
 local function nurbs_curve_insert_knot()
@@ -290,22 +306,30 @@ local function nurbs_curve_insert_knot()
   local knots = { 0, 1, 2, 3 }
   local mults = { 4, 1, 1, 4 }
   local degree = 3
-  local nurbs_curve, _ = make_nurbs_curve(poles, weights, knots, mults, degree)
-  local _ = naivecgl.NurbsCurve.insert_knot(nurbs_curve, 0.7, 2)
-  -- nurbs_curve:IncreaseMultiplicity(2, 2)
-  -- __ghost__:Clear(false)
-  display_nurbs_curve(nurbs_curve)
+  local nurbs_curve = naivecgl.macro.Object.null
 
-  local t = 0.7
-  local curvature = unwrap(naivecgl.Curve.eval_curvature(nurbs_curve, t))
-  local point = unwrap(curve_point_at(nurbs_curve, t))
-  local cvt_vec = gp_Vec(curvature:x(), curvature:y(), curvature:z())
-  local cvt_o = xyz_to_pnt(point)
-  local cvt_r = 1 / cvt_vec:Magnitude()
-  cvt_vec:Multiply(cvt_r * cvt_r)
-  cvt_o:Translate(cvt_vec)
-  local shape = BRepPrimAPI_MakeSphere(cvt_o, cvt_r):Shape()
-  __ghost__:AddShape(shape, Ghost_Attribute(), false)
+  naivecgl.util.try(function()
+    nurbs_curve = make_nurbs_curve(poles, weights, knots, mults, degree)
+    local _ = naivecgl.NurbsCurve.insert_knot(nurbs_curve, 0.7, 2)
+    -- nurbs_curve:IncreaseMultiplicity(2, 2)
+    -- __ghost__:Clear(false)
+    display_nurbs_curve(nurbs_curve)
+
+    local t = 0.7
+    local curvature = unwrap(naivecgl.Curve.eval_curvature(nurbs_curve, t))
+    local point = unwrap(curve_point_at(nurbs_curve, t))
+    local cvt_vec = gp_Vec(curvature:x(), curvature:y(), curvature:z())
+    local cvt_o = xyz_to_pnt(point)
+    local cvt_r = 1 / cvt_vec:Magnitude()
+    cvt_vec:Multiply(cvt_r * cvt_r)
+    cvt_o:Translate(cvt_vec)
+    local shape = BRepPrimAPI_MakeSphere(cvt_o, cvt_r):Shape()
+    __ghost__:AddShape(shape, Ghost_Attribute(), false)
+  end).catch(function(ex)
+    nvs.print(ex)
+  end).finally(function()
+    naivecgl.Object.delete(nurbs_curve)
+  end)
 end
 
 local function nurbs_curve_rtti()
@@ -321,24 +345,32 @@ local function nurbs_curve_rtti()
   local knots = { 0, 1, 2, 3 }
   local mults = { 4, 1, 1, 4 }
   local degree = 3
-  local nurbs_curve, _ = make_nurbs_curve(poles, weights, knots, mults, degree)
+  local nurbs_curve = naivecgl.macro.Object.null
 
-  local code, class, superclass, is_subclass
-  code, class = naivecgl.Object.ask_class(nurbs_curve)
-  assert(code == naivecgl.enum.Code.ok)
-  assert(class == naivecgl.enum.Class.nurbs_curve)
+  naivecgl.util.try(function()
+    nurbs_curve = make_nurbs_curve(poles, weights, knots, mults, degree)
 
-  code, superclass = naivecgl.Class.ask_superclass(class)
-  assert(code == naivecgl.enum.Code.ok)
-  assert(superclass == naivecgl.enum.Class.bounded_curve)
+    local code, class, superclass, is_subclass
+    code, class = naivecgl.Object.ask_class(nurbs_curve)
+    assert(code == naivecgl.enum.Code.ok)
+    assert(class == naivecgl.enum.Class.nurbs_curve)
 
-  code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.curve)
-  assert(code == naivecgl.enum.Code.ok)
-  assert(is_subclass)
+    code, superclass = naivecgl.Class.ask_superclass(class)
+    assert(code == naivecgl.enum.Code.ok)
+    assert(superclass == naivecgl.enum.Class.bounded_curve)
 
-  code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.bounded_surface)
-  assert(code == naivecgl.enum.Code.ok)
-  assert(not is_subclass)
+    code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.curve)
+    assert(code == naivecgl.enum.Code.ok)
+    assert(is_subclass)
+
+    code, is_subclass = naivecgl.Class.is_subclass(class, naivecgl.enum.Class.bounded_surface)
+    assert(code == naivecgl.enum.Code.ok)
+    assert(not is_subclass)
+  end).catch(function(ex)
+    nvs.print(ex)
+  end).finally(function()
+    naivecgl.Object.delete(nurbs_curve)
+  end)
 end
 
 draw_nurbs_curve()
