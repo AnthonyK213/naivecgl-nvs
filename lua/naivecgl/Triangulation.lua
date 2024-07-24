@@ -1,8 +1,7 @@
-local ArrayTriangle = require("naivecgl_ArrayTriangle")
-local ArrayXYZ = require("naivecgl_ArrayXYZ")
-local ffi = require("ffi")
-local naivecgl_common = require("naivecgl_common")
-local naivecgl_ffi = require("naivecgl_ffi")
+local ArrayTriangle = require("naivecgl.ArrayTriangle")
+local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local common_ = require("naivecgl.common_")
+local ffi_ = require("naivecgl.ffi_")
 
 local Triangulation = {}
 
@@ -10,7 +9,7 @@ local Triangulation = {}
 ---@return integer code
 ---@return naivecgl.ArrayTriangle triangles
 function Triangulation.ask_triangles(triangulation)
-  return naivecgl_common.ask_array(triangulation, "Naive_Triangulation_ask_triangles", ArrayTriangle, 0)
+  return common_.ask_array(triangulation, "Naive_Triangulation_ask_triangles", ArrayTriangle, 0)
 end
 
 ---0-indexed.
@@ -18,7 +17,7 @@ end
 ---@return integer code
 ---@return naivecgl.ArrayXYZ
 function Triangulation.ask_vertices(triangulation)
-  return naivecgl_common.ask_array(triangulation, "Naive_Triangulation_ask_vertices", ArrayXYZ, 0)
+  return common_.ask_array(triangulation, "Naive_Triangulation_ask_vertices", ArrayXYZ, 0)
 end
 
 ---Constructor.
@@ -29,8 +28,8 @@ end
 function Triangulation.create(vertices, triangles)
   local aVerts = ArrayXYZ:new(vertices)
   local aTris = ArrayTriangle:new(triangles)
-  local triangulation = ffi.new("Naive_Triangulation_t[1]", 0)
-  return naivecgl_ffi.NS.Naive_Triangulation_create(aVerts:size(), aVerts, aTris:size(), aTris, 1, triangulation),
+  local triangulation = ffi_.new("Naive_Triangulation_t[1]", 0)
+  return ffi_.NS.Naive_Triangulation_create(aVerts:size(), aVerts, aTris:size(), aTris, 1, triangulation),
       triangulation[0]
 end
 

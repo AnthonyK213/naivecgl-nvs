@@ -1,9 +1,8 @@
-local ArrayDouble = require("naivecgl_ArrayDouble")
-local ArrayInt32 = require("naivecgl_ArrayInt32")
-local ArrayXYZ = require("naivecgl_ArrayXYZ")
-local ffi = require("ffi")
+local ArrayDouble = require("naivecgl.ArrayDouble")
+local ArrayInt32 = require("naivecgl.ArrayInt32")
+local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local ffi_ = require("naivecgl.ffi_")
 local ffi_util = require("ffi_util")
-local naivecgl_ffi = require("naivecgl_ffi")
 
 local NurbsSurface = {}
 
@@ -19,16 +18,16 @@ local NurbsSurface = {}
 ---@return integer code
 ---@return integer nurbs_surface
 function NurbsSurface.create(poles, weights, knots_u, knots_v, mults_u, mults_v, degree_u, degree_v)
-  local nbUP, nbVP, aFlatPoles = ffi_util.func.flatten_array2(poles)
+  local nbUP, nbVP, aFlatPoles = ffi_util.util.flatten_array2(poles)
   local aPoles = ArrayXYZ:new(aFlatPoles)
-  local nbUW, nbVW, aFlatWeights = ffi_util.func.flatten_array2(weights)
+  local nbUW, nbVW, aFlatWeights = ffi_util.util.flatten_array2(weights)
   local aWeights = ArrayDouble:new(aFlatWeights)
   local aUKnots = ArrayDouble:new(knots_u)
   local aVKnots = ArrayDouble:new(knots_v)
   local aUMults = ArrayInt32:new(mults_u)
   local aVMults = ArrayInt32:new(mults_v)
-  local nurbs_surface = ffi.new("Naive_NurbsSurface_t[1]", 0)
-  return naivecgl_ffi.NS.Naive_NurbsSurface_create(
+  local nurbs_surface = ffi_.new("Naive_NurbsSurface_t[1]", 0)
+  return ffi_.NS.Naive_NurbsSurface_create(
     nbUP, nbVP, aPoles:data(),
     nbUW, nbVW, aWeights:data(),
     aUKnots:size(), aUKnots:data(), aVKnots:size(), aVKnots:data(),

@@ -1,18 +1,18 @@
-local naivecgl_ffi = require("naivecgl_ffi")
+local ffi_ = require("naivecgl.ffi_")
 
-local naivecgl_util = {}
+local util = {}
 
 ---
 ---@param code integer
 ---@return boolean
-function naivecgl_util.is_ok(code)
-  return naivecgl_ffi.NS.Naive_Code_ok == code
+function util.is_ok(code)
+  return ffi_.NS.Naive_Code_ok == code
 end
 
 ---try-catch-finally.
 ---@param try_block function
 ---@return { catch: fun(catch_block: fun(ex: string)):{ finally: fun(finally_block: function) }, finally: fun(finally_block: function) }
-function naivecgl_util.try(try_block)
+function util.try(try_block)
   local status, err = true, nil
 
   if type(try_block) == "function" then
@@ -63,11 +63,11 @@ end
 ---@param code integer
 ---@param ... T
 ---@return T
-function naivecgl_util.unwrap(code, ...)
-  if not naivecgl_util.is_ok(code) then
+function util.unwrap(code, ...)
+  if not util.is_ok(code) then
     error(code)
   end
   return ...
 end
 
-return naivecgl_util
+return util

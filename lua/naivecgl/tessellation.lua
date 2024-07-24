@@ -1,5 +1,4 @@
-local ffi = require("ffi")
-local naivecgl_ffi = require("naivecgl_ffi")
+local ffi_ = require("naivecgl.ffi_")
 
 local tessellation = {}
 
@@ -10,8 +9,8 @@ local tessellation = {}
 ---@return integer code
 ---@return integer triangulation
 function tessellation.make_tetrasphere(center, radius, level)
-  local triangulation = ffi.new("Naive_Triangulation_t[1]", 0)
-  return naivecgl_ffi.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, triangulation),
+  local triangulation = ffi_.new("Naive_Triangulation_t[1]", 0)
+  return ffi_.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, triangulation),
       triangulation[0]
 end
 

@@ -1,6 +1,5 @@
-local ArrayXYZ = require("naivecgl_ArrayXYZ")
-local ffi = require("ffi")
-local naivecgl_ffi = require("naivecgl_ffi")
+local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local ffi_ = require("naivecgl.ffi_")
 
 local Surface = {}
 
@@ -14,8 +13,8 @@ local Surface = {}
 ---@return naivecgl.ArrayXYZ result
 function Surface.eval(surface, u, v, n_u_deriv, n_v_deriv)
   local n_p = (n_u_deriv + 1) * (n_v_deriv + 1)
-  local p = ffi.new("Naive_Vector3d_t[?]", n_p)
-  return naivecgl_ffi.NS.Naive_Surface_eval(surface, u, v, n_u_deriv, n_v_deriv, p), ArrayXYZ:take(p, n_p)
+  local p = ffi_.new("Naive_Vector3d_t[?]", n_p)
+  return ffi_.NS.Naive_Surface_eval(surface, u, v, n_u_deriv, n_v_deriv, p), ArrayXYZ:take(p, n_p)
 end
 
 return Surface

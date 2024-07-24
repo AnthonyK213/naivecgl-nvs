@@ -1,4 +1,4 @@
-local ffi = require("ffi")
+local ffi_ = require("ffi")
 
 ---@class naivecgl.Triangle
 ---@field private m_type any
@@ -16,7 +16,7 @@ Triangle.m_type = "Naive_Triangle_t"
 ---@param n2? integer
 ---@return naivecgl.Triangle
 function Triangle.new(n0, n1, n2)
-  local handle = ffi.new(Triangle.m_type, {
+  local handle = ffi_.new(Triangle.m_type, {
     n0 = n0 or 0, n1 = n1 or 0, z = n2 or 0
   })
   return Triangle.take(handle)

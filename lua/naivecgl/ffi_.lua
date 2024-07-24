@@ -1,9 +1,9 @@
-local naivecgl_ffi = {}
-
 local ffi = require("ffi")
 
+local ffi_ = {}
+
 ---@type ffi.namespace*
-naivecgl_ffi.NS = nil
+ffi_.NS = nil
 
 ---Get absolute/relative path of the library.
 ---@param theName string The base name of the library.
@@ -29,7 +29,7 @@ local function get_dylib_path(theName)
   return aPath
 end
 
-function naivecgl_ffi:init()
+function ffi_:init()
   if self.NS then
     return
   end
@@ -529,4 +529,9 @@ Naive_Code_t Naive_Triangulation_create(
   end
 end
 
-return naivecgl_ffi
+ffi_.cdef = ffi.cdef
+ffi_.gc = ffi.gc
+ffi_.new = ffi.new
+ffi_.typeof = ffi.typeof
+
+return ffi_
