@@ -13,7 +13,7 @@ local Surface = {}
 ---@return naivecgl.ArrayXYZ result
 function Surface.eval(surface, u, v, n_u_deriv, n_v_deriv)
   local n_p = (n_u_deriv + 1) * (n_v_deriv + 1)
-  local p = ffi_.new("Naive_Vector3d_t[?]", n_p)
+  local p = ffi_.new("Naive_Vec3d_t[?]", n_p)
   return ffi_.NS.Naive_Surface_eval(surface, u, v, n_u_deriv, n_v_deriv, p), ArrayXYZ:take(p, n_p)
 end
 

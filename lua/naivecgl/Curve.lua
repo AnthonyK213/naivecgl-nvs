@@ -22,7 +22,7 @@ end
 ---@return naivecgl.ArrayXYZ result
 function Curve.eval(curve, t, n_deriv)
   local n_p = n_deriv + 1
-  local p = ffi_.new("Naive_Vector3d_t[?]", n_p)
+  local p = ffi_.new("Naive_Vec3d_t[?]", n_p)
   return ffi_.NS.Naive_Curve_eval(curve, t, n_deriv, p), ArrayXYZ:take(p, n_p)
 end
 
@@ -32,7 +32,7 @@ end
 ---@return integer code
 ---@return naivecgl.XYZ curvature
 function Curve.eval_curvature(curve, t)
-  local curvature = ffi_.new("Naive_Vector3d_t", { 0, 0, 0 })
+  local curvature = ffi_.new("Naive_Vec3d_t", { 0, 0, 0 })
   return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), XYZ.take(curvature)
 end
 

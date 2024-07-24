@@ -207,21 +207,21 @@ typedef struct Naive_XYZ_s {
   double x, y, z;
 } Naive_XYZ_t;
 
-/* Naive_Point2d_t */
+/* Naive_Pnt2d_t */
 
-typedef Naive_XY_t Naive_Point2d_t;
+typedef Naive_XY_t Naive_Pnt2d_t;
 
-/* Naive_Vector2d_t */
+/* Naive_Vec2d_t */
 
-typedef Naive_XY_t Naive_Vector2d_t;
+typedef Naive_XY_t Naive_Vec2d_t;
 
-/* Naive_Point3d_t */
+/* Naive_Pnt3d_t */
 
-typedef Naive_XYZ_t Naive_Point3d_t;
+typedef Naive_XYZ_t Naive_Pnt3d_t;
 
-/* Naive_Vector3d_t */
+/* Naive_Vec3d_t */
 
-typedef Naive_XYZ_t Naive_Vector3d_t;
+typedef Naive_XYZ_t Naive_Vec3d_t;
 
 /* Naive_Interval_t */
 
@@ -235,66 +235,66 @@ typedef struct Naive_Triangle_s {
   int n0, n1, n2;
 } Naive_Triangle_t;
 
-/* Naive_Axis2d_sf_t */
+/* Naive_Ax2d_sf_t */
 
-typedef struct Naive_Axis2d_sf_s {
-  Naive_Point2d_t location;
-  Naive_Vector2d_t axis;
-} Naive_Axis2d_sf_t;
+typedef struct Naive_Ax2d_sf_s {
+  Naive_Pnt2d_t location;
+  Naive_Vec2d_t axis;
+} Naive_Ax2d_sf_t;
 
-/* Naive_Axis22d_sf_t */
+/* Naive_Ax22d_sf_t */
 
-typedef struct Naive_Axis22d_sf_s {
-  Naive_Point2d_t location;
-  Naive_Vector2d_t x_axis;
-  Naive_Vector2d_t y_axis;
-} Naive_Axis22d_sf_t;
+typedef struct Naive_Ax22d_sf_s {
+  Naive_Pnt2d_t location;
+  Naive_Vec2d_t x_axis;
+  Naive_Vec2d_t y_axis;
+} Naive_Ax22d_sf_t;
 
-/* Naive_Axis1_sf_t */
+/* Naive_Ax1_sf_t */
 
-typedef struct Naive_Axis1_sf_s {
-  Naive_Point3d_t location;
-  Naive_Vector3d_t axis;
-} Naive_Axis1_sf_t;
+typedef struct Naive_Ax1_sf_s {
+  Naive_Pnt3d_t location;
+  Naive_Vec3d_t axis;
+} Naive_Ax1_sf_t;
 
-/* Naive_Axis2_sf_t */
+/* Naive_Ax2_sf_t */
 
-typedef struct Naive_Axis2_sf_s {
-  Naive_Point3d_t location;
-  Naive_Vector3d_t axis;
-  Naive_Vector3d_t ref_direction;
-} Naive_Axis2_sf_t;
+typedef struct Naive_Ax2_sf_s {
+  Naive_Pnt3d_t location;
+  Naive_Vec3d_t axis;
+  Naive_Vec3d_t ref_direction;
+} Naive_Ax2_sf_t;
 
 /* Naive_Circle2d_sf_t */
 
 typedef struct Naive_Circle2d_sf_s {
-  Naive_Axis22d_sf_t basis_set;
+  Naive_Ax22d_sf_t basis_set;
   double radius;
 } Naive_Circle2d_sf_t;
 
 /* Naive_Line2d_sf_t */
 
 typedef struct Naive_Line2d_sf_s {
-  Naive_Axis2d_sf_t basis_set;
+  Naive_Ax2d_sf_t basis_set;
 } Naive_Line2d_sf_t;
 
 /* Naive_Circle_sf_t */
 
 typedef struct Naive_Circle_sf_s {
-  Naive_Axis2_sf_t basis_set;
+  Naive_Ax2_sf_t basis_set;
   double radius;
 } Naive_Circle_sf_t;
 
 /* Naive_Line_sf_t */
 
 typedef struct Naive_Line_sf_s {
-  Naive_Axis1_sf_t basis_set;
+  Naive_Ax1_sf_t basis_set;
 } Naive_Line_sf_t;
 
 /* Naive_Plane_sf_t */
 
 typedef struct Naive_Plane_sf_s {
-  Naive_Axis2_sf_t basis_set;
+  Naive_Ax2_sf_t basis_set;
 } Naive_Plane_sf_t;
 
 /* Naive_Transform3d_sf_t */
@@ -372,11 +372,11 @@ Naive_Code_t Naive_Curve_ask_bound(
 
 Naive_Code_t Naive_Curve_eval(Naive_Curve_t /* curve */,
                                         double /* t */, int /* n_deriv */,
-                                        Naive_Vector3d_t /* p */[]);
+                                        Naive_Vec3d_t /* p */[]);
 
 Naive_Code_t
 Naive_Curve_eval_curvature(Naive_Curve_t /* curve */, double /* t */,
-                           Naive_Vector3d_t *const /* curvature */);
+                           Naive_Vec3d_t *const /* curvature */);
 
 Naive_Code_t Naive_Curve_make_wire_body(
     int /* n_curves */, const Naive_Curve_t /* curves */[],
@@ -388,14 +388,14 @@ Naive_Code_t Naive_Curve_make_wire_body(
 /* Naive_Geom2dAPI */
 
 Naive_Code_t Naive_Geom2dAPI_convex_hull(
-    int /* n_points */, const Naive_Point2d_t * /* points */,
+    int /* n_points */, const Naive_Pnt2d_t * /* points */,
     Naive_Algorithm_t /* algo */, int *const /* n_convex_points */,
     int **const /* convex_indices */,
-    Naive_Point2d_t **const /* convex_points */);
+    Naive_Pnt2d_t **const /* convex_points */);
 
 Naive_Code_t Naive_Geom2dAPI_enclosing_disc(
-    int /* n_points */, const Naive_Point2d_t * /* points */,
-    Naive_Point2d_t *const /* origin */, double *const /* radius */);
+    int /* n_points */, const Naive_Pnt2d_t * /* points */,
+    Naive_Pnt2d_t *const /* origin */, double *const /* radius */);
 
 /* Naive_Geometry */
 
@@ -432,14 +432,14 @@ Naive_NurbsCurve_ask_mults(Naive_NurbsCurve_t /* nurbs_curve */,
 
 Naive_Code_t Naive_NurbsCurve_ask_poles(
     Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_poles */,
-    Naive_Point3d_t **const /* poles */);
+    Naive_Pnt3d_t **const /* poles */);
 
 Naive_Code_t Naive_NurbsCurve_ask_weights(
     Naive_NurbsCurve_t /* nurbs_curve */, int *const /* n_weights */,
     double **const /* weights */);
 
 Naive_Code_t Naive_NurbsCurve_create(
-    int /* n_poles */, const Naive_Point3d_t * /* poles */, int /* n_weights */,
+    int /* n_poles */, const Naive_Pnt3d_t * /* poles */, int /* n_weights */,
     const double * /* weights */, int /* n_knots */, const double * /* knots */,
     int /* n_mults */, const int * /* mults */, int /* degree */,
     Naive_NurbsCurve_t *const /* nurbs_curve */);
@@ -464,10 +464,9 @@ Naive_Code_t Naive_NurbsSurface_ask_degree(
     int *const /* degree_v */);
 
 Naive_Code_t Naive_NurbsSurface_create(
-    int /* n_poles_u */, int /* n_poles_v */,
-    const Naive_Point3d_t * /* poles */, int /* n_weights_u */,
-    int /* n_weights_v */, const double * /* weights */, int /* n_knots_u */,
-    const double * /* knots_u */, int /* n_knots_v */,
+    int /* n_poles_u */, int /* n_poles_v */, const Naive_Pnt3d_t * /* poles */,
+    int /* n_weights_u */, int /* n_weights_v */, const double * /* weights */,
+    int /* n_knots_u */, const double * /* knots_u */, int /* n_knots_v */,
     const double * /* knots_v */, int /* n_mults_u */,
     const int * /* mults_u */, int /* n_mults_v */, const int * /* mults_v */,
     int /* degree_u */, int /* degree_v */,
@@ -489,7 +488,7 @@ Naive_Code_t Naive_Plane_create(
     const Naive_Plane_sf_t * /* plane_sf */, Naive_Plane_t *const /* plane */);
 
 Naive_Code_t Naive_Plane_distance(Naive_Plane_t /* plane */,
-                                            const Naive_Point3d_t * /* point */,
+                                            const Naive_Pnt3d_t * /* point */,
                                             double *const /* distance */);
 
 /* Naive_Surface */
@@ -498,12 +497,12 @@ Naive_Code_t Naive_Surface_eval(Naive_Surface_t /* surface */,
                                           double /* u */, double /* v */,
                                           int /* n_u_deriv */,
                                           int /* n_v_deriv */,
-                                          Naive_Vector3d_t /* p */[]);
+                                          Naive_Vec3d_t /* p */[]);
 
 /* Naive_Tessellation */
 
 Naive_Code_t Naive_Tessellation_make_tetrasphere(
-    const Naive_Point3d_t * /* center */, double /* radius */, int /* level */,
+    const Naive_Pnt3d_t * /* center */, double /* radius */, int /* level */,
     Naive_Triangulation_t *const /* triangulation */);
 
 /* Naive_Triangulation */
@@ -514,10 +513,10 @@ Naive_Code_t Naive_Triangulation_ask_triangles(
 
 Naive_Code_t Naive_Triangulation_ask_vertices(
     Naive_Triangulation_t /* triangulation */, int *const /* n_vertices */,
-    Naive_Point3d_t **const /* vertices */);
+    Naive_Pnt3d_t **const /* vertices */);
 
 Naive_Code_t Naive_Triangulation_create(
-    int /* n_vertices */, const Naive_Point3d_t * /* vertices */,
+    int /* n_vertices */, const Naive_Pnt3d_t * /* vertices */,
     int /* n_triangles */, const Naive_Triangle_t * /* triangles */,
     int /* i_offset */, Naive_Triangulation_t *const /* triangulation */);
 ]]
