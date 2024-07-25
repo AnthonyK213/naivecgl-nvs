@@ -5,12 +5,14 @@ local ffi_ = require("naivecgl.ffi_")
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
 ---@operator call:naivecgl.Plane_sf_t
-local Plane_sf_t = ffi_.oop.def_class("Naive_Plane_sf_t", function(o, basis_set)
-  local handle = ffi_.new(o.m_type, {
-    basis_set = ffi_.oop.get_data(basis_set)
-  })
-  return ffi_.oop.take(o, handle)
-end)
+local Plane_sf_t = ffi_.oop.def_class("Naive_Plane_sf_t", {
+  ctor = function(o, basis_set)
+    local handle = ffi_.new(o.m_type, {
+      basis_set = ffi_.oop.get_data(basis_set)
+    })
+    return ffi_.oop.take(o, handle)
+  end
+})
 
 ---
 ---@return naivecgl.Ax2_sf_t

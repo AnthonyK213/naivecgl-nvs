@@ -4,12 +4,14 @@ local ffi_ = require("naivecgl.ffi_")
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
 ---@operator call:naivecgl.XYZ
-local XYZ = ffi_.oop.def_class("Naive_XYZ_t", function(o, x, y, z)
-  local handle = ffi_.new(o.m_type, {
-    x = x or 0, y = y or 0, z = z or 0
-  })
-  return ffi_.oop.take(o, handle)
-end)
+local XYZ = ffi_.oop.def_class("Naive_XYZ_t", {
+  ctor = function(o, x, y, z)
+    local handle = ffi_.new(o.m_type, {
+      x = x or 0, y = y or 0, z = z or 0
+    })
+    return ffi_.oop.take(o, handle)
+  end
+})
 
 ---
 ---@return number

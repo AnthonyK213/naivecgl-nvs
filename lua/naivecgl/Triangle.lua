@@ -4,12 +4,14 @@ local ffi_ = require("naivecgl.ffi_")
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
 ---@operator call:naivecgl.Triangle
-local Triangle = ffi_.oop.def_class("Naive_Triangle_t", function(o, n0, n1, n2)
-  local handle = ffi_.new(o.m_type, {
-    n0 = n0 or 0, n1 = n1 or 0, n2 = n2 or 0
-  })
-  return ffi_.oop.take(o, handle)
-end)
+local Triangle = ffi_.oop.def_class("Naive_Triangle_t", {
+  ctor = function(o, n0, n1, n2)
+    local handle = ffi_.new(o.m_type, {
+      n0 = n0 or 0, n1 = n1 or 0, n2 = n2 or 0
+    })
+    return ffi_.oop.take(o, handle)
+  end
+})
 
 ---
 ---@return integer
