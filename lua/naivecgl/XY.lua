@@ -34,19 +34,37 @@ end
 ---
 ---@return number
 function XY:x()
-  return self.m_data.x
+  return ffi_util.util.get_field(self.m_data, "x")
 end
 
 ---
 ---@return number
 function XY:y()
-  return self.m_data.y
+  return ffi_util.util.get_field(self.m_data, "y")
+end
+
+---
+---@param value number
+function XY:set_x(value)
+  ffi_util.util.set_field(self.m_data, "x", value)
+end
+
+---
+---@param value number
+function XY:set_y(value)
+  ffi_util.util.set_field(self.m_data, "y", value)
 end
 
 ---
 ---@return ffi.cdata*
 function XY:data()
   return self.m_data
+end
+
+---
+---@return number
+function XY:magnitude()
+  return math.sqrt(self:x() ^ 2 + self:y() ^ 2)
 end
 
 return XY

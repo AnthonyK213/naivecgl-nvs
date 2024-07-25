@@ -35,19 +35,37 @@ end
 ---
 ---@return number
 function XYZ:x()
-  return self.m_data.x
+  return ffi_util.util.get_field(self.m_data, "x")
 end
 
 ---
 ---@return number
 function XYZ:y()
-  return self.m_data.y
+  return ffi_util.util.get_field(self.m_data, "y")
 end
 
 ---
 ---@return number
 function XYZ:z()
-  return self.m_data.z
+  return ffi_util.util.get_field(self.m_data, "z")
+end
+
+---
+---@param value number
+function XYZ:set_x(value)
+  return ffi_util.util.set_field(self.m_data, "x", value)
+end
+
+---
+---@param value number
+function XYZ:set_y(value)
+  return ffi_util.util.set_field(self.m_data, "y", value)
+end
+
+---
+---@param value number
+function XYZ:set_z(value)
+  return ffi_util.util.set_field(self.m_data, "z", value)
 end
 
 ---
@@ -56,6 +74,8 @@ function XYZ:data()
   return self.m_data
 end
 
+---
+---@return number
 function XYZ:magnitude()
   return math.sqrt(self:x() ^ 2 + self:y() ^ 2 + self:z() ^ 2)
 end

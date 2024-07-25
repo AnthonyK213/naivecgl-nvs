@@ -1,3 +1,4 @@
+local XYZ = require("naivecgl.XYZ")
 local ffi_ = require("naivecgl.ffi_")
 local ffi_util = require("ffi_util")
 
@@ -31,6 +32,24 @@ ffi_util.util.def_ctor(Ax2_sf_t)
 ---@return naivecgl.Ax2_sf_t
 function Ax2_sf_t:take(handle)
   return ffi_util.util.take(self, handle)
+end
+
+---
+---@return naivecgl.XYZ
+function Ax2_sf_t:location()
+  return ffi_util.util.get_field(self.m_data, "location", XYZ)
+end
+
+---
+---@return naivecgl.XYZ
+function Ax2_sf_t:axis()
+  return ffi_util.util.get_field(self.m_data, "axis", XYZ)
+end
+
+---
+---@return naivecgl.XYZ
+function Ax2_sf_t:ref_direction()
+  return ffi_util.util.get_field(self.m_data, "ref_direction", XYZ)
 end
 
 return Ax2_sf_t

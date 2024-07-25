@@ -35,19 +35,19 @@ end
 ---
 ---@return integer
 function Triangle:n0()
-  return self.m_data.n0
+  return ffi_util.util.get_field(self.m_data, "n0")
 end
 
 ---
----@return number
+---@return integer
 function Triangle:n1()
-  return self.m_data.n1
+  return ffi_util.util.get_field(self.m_data, "n1")
 end
 
 ---
----@return number
+---@return integer
 function Triangle:n2()
-  return self.m_data.n2
+  return ffi_util.util.get_field(self.m_data, "n2")
 end
 
 ---

@@ -30,4 +30,10 @@ function Plane_sf_t:take(handle)
   return ffi_util.util.take(self, handle)
 end
 
+---
+---@return naivecgl.Ax2_sf_t
+function Plane_sf_t:basis_set()
+  return ffi_util.util.get_field(self.m_data, "basis_set", Ax2_sf_t)
+end
+
 return Plane_sf_t

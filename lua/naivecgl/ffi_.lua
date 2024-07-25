@@ -528,9 +528,24 @@ Naive_Code_t Naive_Triangulation_create(
   end
 end
 
+ffi_.C = ffi.C
+ffi_.abi = ffi.abi
+ffi_.alignof = ffi.alignof
+ffi_.arch = ffi.arch
+ffi_.cast = ffi.cast
 ffi_.cdef = ffi.cdef
+ffi_.copy = ffi.copy
+ffi_.errno = ffi.errno
+ffi_.fill = ffi.fill
 ffi_.gc = ffi.gc
+ffi_.istype = ffi.istype
+ffi_.load = ffi.load
+ffi_.metatype = ffi.metatype
 ffi_.new = ffi.new
+ffi_.offsetof = ffi.offsetof
+ffi_.os = ffi.os
+ffi_.sizeof = ffi.sizeof
+ffi_.string = ffi.string
 ffi_.typeof = ffi.typeof
 
 return ffi_
