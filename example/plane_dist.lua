@@ -15,8 +15,8 @@ __ghost__:Clear(false)
 
 Naivis.NaiveApp.Clear()
 
-local basis_set = Ax2_sf_t:new(XYZ(1, 1, 4), XYZ(5, 1, 4), XYZ(8, 1, 0))
-local plane_sf = Plane_sf_t:new(basis_set)
+local basis_set = Ax2_sf_t(XYZ(1, 1, 4), XYZ(5, 1, 4), XYZ(8, 1, 0))
+local plane_sf = Plane_sf_t(basis_set)
 local plane = naivecgl.macro.Object.null
 
 naivecgl.util.try(function()

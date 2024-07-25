@@ -37,7 +37,7 @@ function geom2dapi.enclosing_disc(points)
   local o = ffi_.new("Naive_Pnt2d_t")
   local r = ffi_.new("double[1]", 0)
   return ffi_.NS.Naive_Geom2dAPI_enclosing_disc(aPoints:size(), aPoints:data(), o, r),
-      XY:take(o), r[0]
+      ffi_.oop.take(XY, o), r[0]
 end
 
 return geom2dapi

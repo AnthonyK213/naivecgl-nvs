@@ -10,7 +10,7 @@ local tessellation = {}
 ---@return integer triangulation
 function tessellation.make_tetrasphere(center, radius, level)
   local triangulation = ffi_.new("Naive_Triangulation_t[1]", 0)
-  return ffi_.NS.Naive_Tessellation_make_tetrasphere(center:data(), radius, level, triangulation),
+  return ffi_.NS.Naive_Tessellation_make_tetrasphere(ffi_.oop.get_data(center), radius, level, triangulation),
       triangulation[0]
 end
 

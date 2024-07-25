@@ -15,7 +15,7 @@ local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 local gp_Vec = nvs.occ.gp.gp_Vec
 
-local P3 = naivecgl.XYZ
+local XYZ = naivecgl.XYZ
 local unwrap = naivecgl.util.unwrap
 
 local doc = Naivis.NaiveDoc.ActiveDoc
@@ -140,15 +140,15 @@ local function draw_nurbs_curve(n_div)
   local S = math.sqrt(0.5)
 
   local poles = {
-    P3(10, 0, 0),
-    P3(10, 10, 0),
-    P3(0, 10, 0),
-    P3(-10, 10, 0),
-    P3(-10, 0, 0),
-    P3(-10, -10, 0),
-    P3(0, -10, 0),
-    P3(10, -10, 0),
-    P3(10, 0, 0)
+    XYZ(10, 0, 0),
+    XYZ(10, 10, 0),
+    XYZ(0, 10, 0),
+    XYZ(-10, 10, 0),
+    XYZ(-10, 0, 0),
+    XYZ(-10, -10, 0),
+    XYZ(0, -10, 0),
+    XYZ(10, -10, 0),
+    XYZ(10, 0, 0)
   }
   local weights = { 1, S, 1, S, 1, S, 1, S, 1 }
   local knots = { 0, 0.25, 0.5, 0.75, 1 }
@@ -193,9 +193,9 @@ local function draw_nurbs_surface(n_div)
   local degree_u = 2
   local degree_v = 2
   local poles = {
-    { P3(15, -10, 3),  P3(15, 0, 9), P3(15, 10, 2) },
-    { P3(25, -10, 1),  P3(25, 0, 0), P3(25, 10, -6) },
-    { P3(35, -10, -4), P3(35, 0, 1), P3(35, 10, 5) },
+    { XYZ(15, -10, 3),  XYZ(15, 0, 9), XYZ(15, 10, 2) },
+    { XYZ(25, -10, 1),  XYZ(25, 0, 0), XYZ(25, 10, -6) },
+    { XYZ(35, -10, -4), XYZ(35, 0, 1), XYZ(35, 10, 5) },
   }
   local weights = {
     { 0.3, 1.4, 2.9 },
@@ -295,12 +295,12 @@ end
 
 local function nurbs_curve_insert_knot()
   local poles = {
-    P3(-10, 34, 6),
-    P3(-9, 15, -6),
-    P3(-6, 20, 1),
-    P3(0, 26, 2),
-    P3(4, 17, -3),
-    P3(10, 21, 10),
+    XYZ(-10, 34, 6),
+    XYZ(-9, 15, -6),
+    XYZ(-6, 20, 1),
+    XYZ(0, 26, 2),
+    XYZ(4, 17, -3),
+    XYZ(10, 21, 10),
   }
   local weights = { 1.5, 2, 0.5, 1.1, 0.1, 1 }
   local knots = { 0, 1, 2, 3 }
@@ -334,12 +334,12 @@ end
 
 local function nurbs_curve_rtti()
   local poles = {
-    P3(-10, 34, 6),
-    P3(-9, 15, -6),
-    P3(-6, 20, 1),
-    P3(0, 26, 2),
-    P3(4, 17, -3),
-    P3(10, 21, 10),
+    XYZ(-10, 34, 6),
+    XYZ(-9, 15, -6),
+    XYZ(-6, 20, 1),
+    XYZ(0, 26, 2),
+    XYZ(4, 17, -3),
+    XYZ(10, 21, 10),
   }
   local weights = { 1.5, 2, 0.5, 1.1, 0.1, 1 }
   local knots = { 0, 1, 2, 3 }

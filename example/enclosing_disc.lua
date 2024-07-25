@@ -12,7 +12,7 @@ local gp = nvs.occ.gp.gp
 local gp_Ax2 = nvs.occ.gp.gp_Ax2
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 
-local P2 = naivecgl.XY
+local XY = naivecgl.XY
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -25,7 +25,7 @@ local points = {}
 for i = 1, n_points do
   local x = math.random() * 20 - 10
   local y = math.random() * 20 - 10
-  points[i] = P2(x, y)
+  points[i] = XY(x, y)
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 

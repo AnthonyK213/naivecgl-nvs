@@ -33,7 +33,7 @@ end
 ---@return naivecgl.XYZ curvature
 function Curve.eval_curvature(curve, t)
   local curvature = ffi_.new("Naive_Vec3d_t", { 0, 0, 0 })
-  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), XYZ:take(curvature)
+  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.oop.take(XYZ, curvature)
 end
 
 return Curve

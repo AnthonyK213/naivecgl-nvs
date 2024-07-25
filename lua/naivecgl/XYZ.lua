@@ -1,77 +1,50 @@
-local ffi = require("ffi")
-local ffi_util = require("ffi_util")
+local ffi_ = require("naivecgl.ffi_")
 
 ---@class naivecgl.XYZ
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
 ---@operator call:naivecgl.XYZ
-local XYZ = {}
-
----@private
-XYZ.__index = XYZ
-XYZ.m_type = "Naive_XYZ_t"
-
----Constructor.
----@param coord_x? number
----@param coord_y? number
----@param coord_z? number
----@return naivecgl.XYZ
-function XYZ:new(coord_x, coord_y, coord_z)
-  local handle = ffi.new(self.m_type, {
-    x = coord_x or 0, y = coord_y or 0, z = coord_z or 0
+local XYZ = ffi_.oop.def_class("Naive_XYZ_t", function(o, x, y, z)
+  local handle = ffi_.new(o.m_type, {
+    x = x or 0, y = y or 0, z = z or 0
   })
-  return self:take(handle)
-end
-
-ffi_util.util.def_ctor(XYZ)
-
----
----@param handle ffi.cdata*
----@return naivecgl.XYZ
-function XYZ:take(handle)
-  return ffi_util.util.take(XYZ, handle)
-end
+  return ffi_.oop.take(o, handle)
+end)
 
 ---
 ---@return number
 function XYZ:x()
-  return ffi_util.util.get_field(self.m_data, "x")
+  return ffi_.oop.get_field(self.m_data, "x")
 end
 
 ---
 ---@return number
 function XYZ:y()
-  return ffi_util.util.get_field(self.m_data, "y")
+  return ffi_.oop.get_field(self.m_data, "y")
 end
 
 ---
 ---@return number
 function XYZ:z()
-  return ffi_util.util.get_field(self.m_data, "z")
+  return ffi_.oop.get_field(self.m_data, "z")
 end
 
 ---
 ---@param value number
 function XYZ:set_x(value)
-  return ffi_util.util.set_field(self.m_data, "x", value)
+  return ffi_.oop.set_field(self.m_data, "x", value)
 end
 
 ---
 ---@param value number
 function XYZ:set_y(value)
-  return ffi_util.util.set_field(self.m_data, "y", value)
+  return ffi_.oop.set_field(self.m_data, "y", value)
 end
 
 ---
 ---@param value number
 function XYZ:set_z(value)
-  return ffi_util.util.set_field(self.m_data, "z", value)
-end
-
----
----@return ffi.cdata*
-function XYZ:data()
-  return self.m_data
+  return ffi_.oop.set_field(self.m_data, "z", value)
 end
 
 ---

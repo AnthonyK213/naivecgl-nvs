@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local ffi_util = require("ffi_util")
 
 local ffi_ = {}
 
@@ -547,5 +548,9 @@ ffi_.os = ffi.os
 ffi_.sizeof = ffi.sizeof
 ffi_.string = ffi.string
 ffi_.typeof = ffi.typeof
+
+ffi_.Array = ffi_util.Array
+ffi_.oop = ffi_util.oop
+ffi_.util = ffi_util.util
 
 return ffi_
