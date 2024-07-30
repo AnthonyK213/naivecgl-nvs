@@ -5,10 +5,10 @@ local common_ = {}
 ---
 ---@param tag integer
 ---@param method string
----@param type_ ffi_util.Array
+---@param type_ ffi_util.array.Array
 ---@param low? integer
 ---@return integer code
----@return ffi_util.Array array
+---@return ffi_util.array.Array array
 function common_.ask_array(tag, method, type_, low)
   local n_array = ffi_.new("int[1]", 0)
   local array = ffi_.new(ffi_.typeof(ffi_.oop.get_type(type_.m_type) .. "*[1]"))

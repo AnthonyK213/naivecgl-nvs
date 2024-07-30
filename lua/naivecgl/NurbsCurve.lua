@@ -1,5 +1,5 @@
-local ArrayDouble = require("naivecgl.ArrayDouble")
-local ArrayInt32 = require("naivecgl.ArrayInt32")
+local ArrayDouble = require("ffi_util").array.ArrayDouble
+local ArrayInt32 = require("ffi_util").array.ArrayInt32
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local common_ = require("naivecgl.common_")
 local ffi_ = require("naivecgl.ffi_")
@@ -18,7 +18,7 @@ end
 ---
 ---@param nurbs_curve integer
 ---@return integer code
----@return naivecgl.ArrayDouble
+---@return ffi_util.array.ArrayDouble
 function NurbsCurve.ask_knots(nurbs_curve)
   return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_knots", ArrayDouble)
 end
@@ -26,7 +26,7 @@ end
 ---
 ---@param nurbs_curve integer
 ---@return integer code
----@return naivecgl.ArrayInt32 mults
+---@return ffi_util.array.ArrayInt32 mults
 function NurbsCurve.ask_mults(nurbs_curve)
   return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_mults", ArrayInt32)
 end
@@ -42,7 +42,7 @@ end
 ---
 ---@param nurbs_curve integer
 ---@return integer code
----@return naivecgl.ArrayDouble weights
+---@return ffi_util.array.ArrayDouble weights
 function NurbsCurve.ask_weights(nurbs_curve)
   return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_weights", ArrayDouble)
 end

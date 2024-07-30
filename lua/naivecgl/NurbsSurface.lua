@@ -1,5 +1,5 @@
-local ArrayDouble = require("naivecgl.ArrayDouble")
-local ArrayInt32 = require("naivecgl.ArrayInt32")
+local ArrayDouble = require("ffi_util").array.ArrayDouble
+local ArrayInt32 = require("ffi_util").array.ArrayInt32
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local ffi_ = require("naivecgl.ffi_")
 

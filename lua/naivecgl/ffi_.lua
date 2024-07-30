@@ -549,7 +549,7 @@ ffi_.sizeof = ffi.sizeof
 ffi_.string = ffi.string
 ffi_.typeof = ffi.typeof
 
-ffi_.Array = ffi_util.Array
+ffi_.Array = ffi_util.array.Array
 ffi_.oop = ffi_util.oop
 ffi_.util = ffi_util.util
 
