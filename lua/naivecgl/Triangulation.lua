@@ -21,14 +21,14 @@ function Triangulation.ask_vertices(triangulation)
 end
 
 ---Constructor.
----@param vertices naivecgl.XYZ[]
----@param triangles naivecgl.Triangle[]
+---@param vertices naivecgl.XYZ_t[]
+---@param triangles naivecgl.Triangle_t[]
 ---@return integer code
 ---@return integer triangulation
 function Triangulation.create(vertices, triangles)
   local aVerts = ArrayXYZ:new(vertices)
   local aTris = ArrayTriangle:new(triangles)
-  local triangulation = ffi_.new("Naive_Triangulation_t[1]", 0)
+  local triangulation = ffi_.F.new("Naive_Triangulation_t[1]", 0)
   return ffi_.NS.Naive_Triangulation_create(aVerts:size(), aVerts, aTris:size(), aTris, 1, triangulation),
       triangulation[0]
 end

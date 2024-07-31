@@ -7,7 +7,7 @@ local Class = {}
 ---@return integer code
 ---@return integer superclass
 function Class.ask_superclass(class)
-  local superclass = ffi_.new("Naive_Class_t[1]", 0)
+  local superclass = ffi_.F.new("Naive_Class_t[1]", 0)
   return ffi_.NS.Naive_Class_ask_superclass(class, superclass), superclass[0]
 end
 
@@ -17,7 +17,7 @@ end
 ---@return integer code
 ---@return boolean is_subclass
 function Class.is_subclass(may_be_subclass, class)
-  local is_subclass = ffi_.new("Naive_Logical_t[1]", 0)
+  local is_subclass = ffi_.F.new("Naive_Logical_t[1]", 0)
   return ffi_.NS.Naive_Class_is_subclass(may_be_subclass, class, is_subclass), is_subclass[0] == 1
 end
 

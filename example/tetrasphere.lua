@@ -14,7 +14,7 @@ __ghost__:Clear(false)
 
 local code, tetrasphere, is_valid, vertices, triangles
 
-code, tetrasphere = naivecgl.tessellation.make_tetrasphere(naivecgl.XYZ(), 10, 13)
+code, tetrasphere = naivecgl.Tessellation.make_tetrasphere(naivecgl.XYZ_t(), 10, 13)
 code, is_valid = naivecgl.Geometry.is_valid(tetrasphere)
 
 if is_valid then

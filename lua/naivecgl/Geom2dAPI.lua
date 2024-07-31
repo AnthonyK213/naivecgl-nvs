@@ -1,18 +1,18 @@
 local ArrayXY = require("naivecgl.ArrayXY")
-local XY = require("naivecgl.XY")
+local XY = require("naivecgl.XY_t")
 local ffi_ = require("naivecgl.ffi_")
 
-local geom2dapi = {}
+local Geom2dAPI = {}
 
 ---
----@param points naivecgl.XY[]
+---@param points naivecgl.XY_t[]
 ---@param algo? any
 ---@return integer code
 ---@return integer[] convex_indices
-function geom2dapi.convex_hull(points, algo)
+function Geom2dAPI.convex_hull(points, algo)
   local point_array = ArrayXY:new(points)
-  local n_convex_points = ffi_.new("int[1]", 0)
-  local convex_indices = ffi_.new("int*[1]")
+  local n_convex_points = ffi_.F.new("int[1]", 0)
+  local convex_indices = ffi_.F.new("int*[1]")
   local code = ffi_.NS.Naive_Geom2dAPI_convex_hull(point_array:size(), point_array:data(),
     algo or ffi_.NS.Naive_Algorithm_quick_hull_c, n_convex_points, convex_indices, nil)
 
@@ -28,16 +28,16 @@ function geom2dapi.convex_hull(points, algo)
 end
 
 ---
----@param points naivecgl.XY[]
+---@param points naivecgl.XY_t[]
 ---@return integer code
----@return naivecgl.XY origin
+---@return naivecgl.XY_t origin
 ---@return number radius
-function geom2dapi.enclosing_disc(points)
+function Geom2dAPI.enclosing_disc(points)
   local aPoints = ArrayXY:new(points)
-  local o = ffi_.new("Naive_Pnt2d_t")
-  local r = ffi_.new("double[1]", 0)
+  local o = ffi_.F.new("Naive_Pnt2d_t")
+  local r = ffi_.F.new("double[1]", 0)
   return ffi_.NS.Naive_Geom2dAPI_enclosing_disc(aPoints:size(), aPoints:data(), o, r),
-      ffi_.oop.take(XY, o), r[0]
+      ffi_.U.oop.take(XY, o), r[0]
 end
 
-return geom2dapi
+return Geom2dAPI

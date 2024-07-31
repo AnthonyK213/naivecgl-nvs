@@ -1,8 +1,9 @@
-local ArrayDouble = require("ffi_util").array.ArrayDouble
-local ArrayInt32 = require("ffi_util").array.ArrayInt32
+local ffi_ = require("naivecgl.ffi_")
+
+local ArrayDouble = ffi_.U.array.ArrayDouble
+local ArrayInt32 = ffi_.U.array.ArrayInt32
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local common_ = require("naivecgl.common_")
-local ffi_ = require("naivecgl.ffi_")
 
 local NurbsCurve = {}
 
@@ -11,7 +12,7 @@ local NurbsCurve = {}
 ---@return integer code
 ---@return integer degree
 function NurbsCurve.ask_degree(nurbs_curve)
-  local degree = ffi_.new("int[1]", 0)
+  local degree = ffi_.F.new("int[1]", 0)
   return ffi_.NS.Naive_NurbsCurve_ask_degree(nurbs_curve, degree), degree[0]
 end
 
@@ -48,7 +49,7 @@ function NurbsCurve.ask_weights(nurbs_curve)
 end
 
 ---
----@param poles naivecgl.XYZ[]
+---@param poles naivecgl.XYZ_t[]
 ---@param weights number[]
 ---@param knots number[]
 ---@param mults integer[]
@@ -60,7 +61,7 @@ function NurbsCurve.create(poles, weights, knots, mults, degree)
   local aWeights = ArrayDouble:new(weights)
   local aKnots = ArrayDouble:new(knots)
   local aMults = ArrayInt32:new(mults)
-  local nurbs_curve = ffi_.new("Naive_NurbsCurve_t[1]", 0)
+  local nurbs_curve = ffi_.F.new("Naive_NurbsCurve_t[1]", 0)
   return ffi_.NS.Naive_NurbsCurve_create(
     aPoles:size(), aPoles:data(), aWeights:size(), aWeights:data(),
     aKnots:size(), aKnots:data(), aMults:size(), aMults:data(),

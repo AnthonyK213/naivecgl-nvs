@@ -1,37 +1,37 @@
-local XYZ = require("naivecgl.XYZ")
+local XYZ = require("naivecgl.XYZ_t")
 local ffi_ = require("naivecgl.ffi_")
 
 ---@class naivecgl.Ax2_sf_t
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
 ---@operator call:naivecgl.Ax2_sf_t
-local Ax2_sf_t = ffi_.oop.def_class("Naive_Ax2_sf_t", {
+local Ax2_sf_t = ffi_.U.oop.def_class("Naive_Ax2_sf_t", {
   ctor = function(o, location, axis, ref_direction)
-    local handle = ffi_.new(o.m_type, {
-      location = ffi_.oop.get_data(location),
-      axis = ffi_.oop.get_data(axis),
-      ref_direction = ffi_.oop.get_data(ref_direction),
+    local handle = ffi_.F.new(o.m_type, {
+      location = ffi_.U.oop.get_data(location),
+      axis = ffi_.U.oop.get_data(axis),
+      ref_direction = ffi_.U.oop.get_data(ref_direction),
     })
-    return ffi_.oop.take(o, handle)
+    return ffi_.U.oop.take(o, handle)
   end
 })
 
 ---
----@return naivecgl.XYZ
+---@return naivecgl.XYZ_t
 function Ax2_sf_t:location()
-  return ffi_.oop.get_field(self.m_data, "location", XYZ)
+  return ffi_.U.oop.get_field(self.m_data, "location", XYZ)
 end
 
 ---
----@return naivecgl.XYZ
+---@return naivecgl.XYZ_t
 function Ax2_sf_t:axis()
-  return ffi_.oop.get_field(self.m_data, "axis", XYZ)
+  return ffi_.U.oop.get_field(self.m_data, "axis", XYZ)
 end
 
 ---
----@return naivecgl.XYZ
+---@return naivecgl.XYZ_t
 function Ax2_sf_t:ref_direction()
-  return ffi_.oop.get_field(self.m_data, "ref_direction", XYZ)
+  return ffi_.U.oop.get_field(self.m_data, "ref_direction", XYZ)
 end
 
 return Ax2_sf_t

@@ -12,7 +12,7 @@ local gp = nvs.occ.gp.gp
 local gp_Ax2 = nvs.occ.gp.gp_Ax2
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 
-local XY = naivecgl.XY
+local XY = naivecgl.XY_t
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -29,7 +29,7 @@ for i = 1, n_points do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local o, r = naivecgl.util.unwrap(naivecgl.geom2dapi.enclosing_disc(points))
+local o, r = naivecgl.util.unwrap(naivecgl.Geom2dAPI.enclosing_disc(points))
 
 local circle = Geom_Circle(gp_Ax2(gp_Pnt(o:x(), o:y(), 0), gp.DZ()), r)
 local edge = BRepBuilderAPI_MakeEdge(circle):Edge()

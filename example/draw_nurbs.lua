@@ -15,7 +15,7 @@ local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 local gp_Vec = nvs.occ.gp.gp_Vec
 
-local XYZ = naivecgl.XYZ
+local XYZ = naivecgl.XYZ_t
 local unwrap = naivecgl.util.unwrap
 
 local doc = Naivis.NaiveDoc.ActiveDoc
@@ -28,7 +28,7 @@ if Naivis then
 end
 
 ---
----@param xyz naivecgl.XYZ
+---@param xyz naivecgl.XYZ_t
 ---@return gp_Pnt
 local function xyz_to_pnt(xyz)
   return gp_Pnt(xyz:x(), xyz:y(), xyz:z())
@@ -38,7 +38,7 @@ end
 ---@param curve integer
 ---@param t number
 ---@return integer
----@return naivecgl.XYZ
+---@return naivecgl.XYZ_t
 local function curve_point_at(curve, t)
   local code, result = naivecgl.Curve.eval(curve, t, 0)
   return code, result:value(1)
@@ -105,7 +105,7 @@ local function display_nurbs_curve(nurbs_curve, n_div)
 end
 
 ---
----@param poles naivecgl.XYZ[]
+---@param poles naivecgl.XYZ_t[]
 ---@param weights number[]
 ---@param knots number[]
 ---@param mults integer[]
@@ -154,7 +154,7 @@ local function draw_nurbs_curve(n_div)
   local knots = { 0, 0.25, 0.5, 0.75, 1 }
   local mults = { 3, 2, 2, 2, 3 }
   local degree = 2
-  local nurbs_curve = naivecgl.macro.Object.null
+  local nurbs_curve = naivecgl.Object.null
   local bs
 
   naivecgl.util.try(function()
@@ -206,7 +206,7 @@ local function draw_nurbs_surface(n_div)
   local knots_v = { 0, 1 }
   local mults_u = { 3, 3 }
   local mults_v = { 3, 3 }
-  local nurbs_surface = naivecgl.macro.Object.null
+  local nurbs_surface = naivecgl.Object.null
 
   naivecgl.util.try(function()
     nurbs_surface = unwrap(naivecgl.NurbsSurface.create(
@@ -306,7 +306,7 @@ local function nurbs_curve_insert_knot()
   local knots = { 0, 1, 2, 3 }
   local mults = { 4, 1, 1, 4 }
   local degree = 3
-  local nurbs_curve = naivecgl.macro.Object.null
+  local nurbs_curve = naivecgl.Object.null
 
   naivecgl.util.try(function()
     nurbs_curve = make_nurbs_curve(poles, weights, knots, mults, degree)
@@ -345,7 +345,7 @@ local function nurbs_curve_rtti()
   local knots = { 0, 1, 2, 3 }
   local mults = { 4, 1, 1, 4 }
   local degree = 3
-  local nurbs_curve = naivecgl.macro.Object.null
+  local nurbs_curve = naivecgl.Object.null
 
   naivecgl.util.try(function()
     nurbs_curve = make_nurbs_curve(poles, weights, knots, mults, degree)

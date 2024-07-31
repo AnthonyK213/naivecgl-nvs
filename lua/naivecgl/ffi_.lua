@@ -35,6 +35,12 @@ function ffi_:init()
     return
   end
 
+  self.NS = ffi.load(get_dylib_path("NaiveCGL"))
+
+  if not self.NS then
+    error("Failed to initialize NaiveCGL")
+  end
+
   -- NaiveCGL_c_enums.h
   ffi.cdef [[
 /* Naive_Algorithm */
@@ -521,36 +527,9 @@ Naive_Code_t Naive_Triangulation_create(
     int /* n_triangles */, const Naive_Triangle_t * /* triangles */,
     int /* i_offset */, Naive_Triangulation_t *const /* triangulation */);
 ]]
-
-  self.NS = ffi.load(get_dylib_path("NaiveCGL"))
-
-  if not self.NS then
-    error("Failed to initialize NaiveCGL")
-  end
 end
 
-ffi_.C = ffi.C
-ffi_.abi = ffi.abi
-ffi_.alignof = ffi.alignof
-ffi_.arch = ffi.arch
-ffi_.cast = ffi.cast
-ffi_.cdef = ffi.cdef
-ffi_.copy = ffi.copy
-ffi_.errno = ffi.errno
-ffi_.fill = ffi.fill
-ffi_.gc = ffi.gc
-ffi_.istype = ffi.istype
-ffi_.load = ffi.load
-ffi_.metatype = ffi.metatype
-ffi_.new = ffi.new
-ffi_.offsetof = ffi.offsetof
-ffi_.os = ffi.os
-ffi_.sizeof = ffi.sizeof
-ffi_.string = ffi.string
-ffi_.typeof = ffi.typeof
-
-ffi_.Array = ffi_util.array.Array
-ffi_.oop = ffi_util.oop
-ffi_.util = ffi_util.util
+ffi_.F = ffi
+ffi_.U = ffi_util
 
 return ffi_

@@ -9,7 +9,7 @@ local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
 local Quantity_Color = nvs.occ.Quantity.Quantity_Color
 local gp_Pnt = nvs.occ.gp.gp_Pnt
 
-local XY = naivecgl.XY
+local XY = naivecgl.XY_t
 
 local doc = Naivis.NaiveDoc.ActiveDoc
 doc:Objects():Clear(false)
@@ -26,7 +26,7 @@ for i = 1, n_points do
   doc:Objects():AddShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, 0)):Vertex(), LODoc_Attribute(), false)
 end
 
-local convex_indices = naivecgl.util.unwrap(naivecgl.geom2dapi.convex_hull(points))
+local convex_indices = naivecgl.util.unwrap(naivecgl.Geom2dAPI.convex_hull(points))
 local n_convex_points = #convex_indices
 
 for i = 1, n_convex_points do

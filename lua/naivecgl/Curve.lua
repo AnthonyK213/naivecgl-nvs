@@ -1,5 +1,5 @@
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
-local XYZ = require("naivecgl.XYZ")
+local XYZ = require("naivecgl.XYZ_t")
 local ffi_ = require("naivecgl.ffi_")
 
 local Curve = {}
@@ -10,7 +10,7 @@ local Curve = {}
 ---@return number t0
 ---@return number t1
 function Curve.ask_bound(curve)
-  local aBound = ffi_.new("Naive_Interval_t", { 0, 0 })
+  local aBound = ffi_.F.new("Naive_Interval_t", { 0, 0 })
   return ffi_.NS.Naive_Curve_ask_bound(curve, aBound), aBound.t0, aBound.t1
 end
 
@@ -22,7 +22,7 @@ end
 ---@return naivecgl.ArrayXYZ result
 function Curve.eval(curve, t, n_deriv)
   local n_p = n_deriv + 1
-  local p = ffi_.new("Naive_Vec3d_t[?]", n_p)
+  local p = ffi_.F.new("Naive_Vec3d_t[?]", n_p)
   return ffi_.NS.Naive_Curve_eval(curve, t, n_deriv, p), ArrayXYZ:take(p, n_p)
 end
 
@@ -30,10 +30,10 @@ end
 ---@param curve integer
 ---@param t number
 ---@return integer code
----@return naivecgl.XYZ curvature
+---@return naivecgl.XYZ_t curvature
 function Curve.eval_curvature(curve, t)
-  local curvature = ffi_.new("Naive_Vec3d_t", { 0, 0, 0 })
-  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.oop.take(XYZ, curvature)
+  local curvature = ffi_.F.new("Naive_Vec3d_t", { 0, 0, 0 })
+  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.U.oop.take(XYZ, curvature)
 end
 
 return Curve
