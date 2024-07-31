@@ -1,9 +1,9 @@
 local ffi_ = require("naivecgl.ffi_")
 
----@class naivecgl.Triangle_t
+---@class Naive.Triangle_t
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
----@operator call:naivecgl.Triangle_t
+---@operator call:Naive.Triangle_t
 local Triangle_t = ffi_.U.oop.def_class("Naive_Triangle_t", {
   ctor = function(o, n0, n1, n2)
     local handle = ffi_.F.new(o.m_type, {

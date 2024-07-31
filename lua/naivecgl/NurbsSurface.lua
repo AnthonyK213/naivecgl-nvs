@@ -7,7 +7,7 @@ local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local NurbsSurface = {}
 
 ---
----@param poles naivecgl.XYZ_t[][]
+---@param poles Naive.XYZ_t[][]
 ---@param weights number[][]
 ---@param knots_u number[]
 ---@param knots_v number[]

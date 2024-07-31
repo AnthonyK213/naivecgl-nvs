@@ -2,7 +2,7 @@ local naivecgl = require("naivecgl")
 
 local Ax2_sf_t = naivecgl.Ax2_sf_t
 local Plane_sf_t = naivecgl.Plane_sf_t
-local XYZ = naivecgl.XYZ_t
+local XYZ_t = naivecgl.XYZ_t
 
 local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
 local LODoc_Attribute = nvs.occ.LODoc.LODoc_Attribute
@@ -15,14 +15,14 @@ __ghost__:Clear(false)
 
 Naivis.NaiveApp.Clear()
 
-local basis_set = Ax2_sf_t(XYZ(1, 1, 4), XYZ(5, 1, 4), XYZ(8, 1, 0))
+local basis_set = Ax2_sf_t(XYZ_t(1, 1, 4), XYZ_t(5, 1, 4), XYZ_t(8, 1, 0))
 local plane_sf = Plane_sf_t(basis_set)
 local plane = naivecgl.Object.null
 
 naivecgl.util.try(function()
   plane = naivecgl.util.unwrap(naivecgl.Plane.create(plane_sf))
 
-  local test_point = XYZ()
+  local test_point = XYZ_t()
   local dist = naivecgl.util.unwrap(naivecgl.Plane.distance(plane, test_point))
 
   print(dist)

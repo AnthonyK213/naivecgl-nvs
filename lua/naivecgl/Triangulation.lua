@@ -21,8 +21,8 @@ function Triangulation.ask_vertices(triangulation)
 end
 
 ---Constructor.
----@param vertices naivecgl.XYZ_t[]
----@param triangles naivecgl.Triangle_t[]
+---@param vertices Naive.XYZ_t[]
+---@param triangles Naive.Triangle_t[]
 ---@return integer code
 ---@return integer triangulation
 function Triangulation.create(vertices, triangles)

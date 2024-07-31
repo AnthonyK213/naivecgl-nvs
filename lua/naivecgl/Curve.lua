@@ -1,5 +1,5 @@
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
-local XYZ = require("naivecgl.XYZ_t")
+local XYZ_t = require("naivecgl.XYZ_t")
 local ffi_ = require("naivecgl.ffi_")
 
 local Curve = {}
@@ -30,10 +30,10 @@ end
 ---@param curve integer
 ---@param t number
 ---@return integer code
----@return naivecgl.XYZ_t curvature
+---@return Naive.XYZ_t curvature
 function Curve.eval_curvature(curve, t)
   local curvature = ffi_.F.new("Naive_Vec3d_t", { 0, 0, 0 })
-  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.U.oop.take(XYZ, curvature)
+  return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.U.oop.take(XYZ_t, curvature)
 end
 
 return Curve

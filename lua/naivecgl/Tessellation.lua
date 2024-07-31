@@ -3,7 +3,7 @@ local ffi_ = require("naivecgl.ffi_")
 local Tessellation = {}
 
 ---Calculates the tetrasphere with a tessellation level.
----@param center naivecgl.XYZ_t
+---@param center Naive.XYZ_t
 ---@param radius number
 ---@param level integer
 ---@return integer code

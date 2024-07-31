@@ -1,9 +1,9 @@
 local ffi_ = require("naivecgl.ffi_")
 
----@class naivecgl.XY_t
+---@class Naive.XY_t
 ---@field private m_type any
 ---@field private m_data ffi.cdata*
----@operator call:naivecgl.XY_t
+---@operator call:Naive.XY_t
 local XY_t = ffi_.U.oop.def_class("Naive_XY_t", {
   ctor = function(o, x, y)
     local handle = ffi_.F.new(o.m_type, {

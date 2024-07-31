@@ -49,7 +49,7 @@ function NurbsCurve.ask_weights(nurbs_curve)
 end
 
 ---
----@param poles naivecgl.XYZ_t[]
+---@param poles Naive.XYZ_t[]
 ---@param weights number[]
 ---@param knots number[]
 ---@param mults integer[]

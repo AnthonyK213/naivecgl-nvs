@@ -6,14 +6,14 @@ local Plane = {}
 ---
 ---@param plane integer
 ---@return integer code
----@return naivecgl.Plane_sf_t plane_sf
+---@return Naive.Plane_sf_t plane_sf
 function Plane.ask(plane)
   local plane_sf = ffi_.F.new(ffi_.U.oop.get_type(Plane_sf_t))
   return ffi_.NS.Naive_Plane_ask(plane, plane_sf), ffi_.U.oop.take(Plane_sf_t, plane_sf)
 end
 
 ---
----@param plane_sf naivecgl.Plane_sf_t
+---@param plane_sf Naive.Plane_sf_t
 ---@return integer code
 ---@return integer plane
 function Plane.create(plane_sf)
@@ -23,7 +23,7 @@ end
 
 ---
 ---@param plane integer
----@param point naivecgl.XYZ_t
+---@param point Naive.XYZ_t
 ---@return integer code
 ---@return number distance
 function Plane.distance(plane, point)
