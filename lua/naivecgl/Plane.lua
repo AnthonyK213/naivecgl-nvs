@@ -31,4 +31,4 @@ function Plane.distance(plane, point)
   return ffi_.NS.Naive_Plane_distance(plane, ffi_.U.oop.get_data(point), distance), distance[0]
 end
 
-return Plane
+return ffi_.U.oop.make_readonly(Plane)

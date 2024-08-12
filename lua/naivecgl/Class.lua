@@ -21,4 +21,4 @@ function Class.is_subclass(may_be_subclass, class)
   return ffi_.NS.Naive_Class_is_subclass(may_be_subclass, class, is_subclass), is_subclass[0] == 1
 end
 
-return Class
+return ffi_.U.oop.make_readonly(Class)

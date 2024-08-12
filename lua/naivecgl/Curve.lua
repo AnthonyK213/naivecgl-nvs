@@ -36,4 +36,4 @@ function Curve.eval_curvature(curve, t)
   return ffi_.NS.Naive_Curve_eval_curvature(curve, t, curvature), ffi_.U.oop.take(XYZ_t, curvature)
 end
 
-return Curve
+return ffi_.U.oop.make_readonly(Curve)

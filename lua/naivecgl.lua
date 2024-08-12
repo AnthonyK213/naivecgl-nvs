@@ -1,6 +1,8 @@
+local ffi_ = require("naivecgl.ffi_")
+
 local naivecgl = {}
 
-require("naivecgl.ffi_"):init()
+ffi_:init()
 
 naivecgl.Ax2_sf_t      = require("naivecgl.Ax2_sf_t")
 naivecgl.Body          = require("naivecgl.Body")
@@ -23,4 +25,4 @@ naivecgl.XYZ_t         = require("naivecgl.XYZ_t")
 naivecgl.enum          = require("naivecgl.enum")
 naivecgl.util          = require("naivecgl.util")
 
-return naivecgl
+return ffi_.U.oop.make_readonly(naivecgl)

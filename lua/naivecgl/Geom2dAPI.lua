@@ -40,4 +40,4 @@ function Geom2dAPI.enclosing_disc(points)
       ffi_.U.oop.take(XY_t, o), r[0]
 end
 
-return Geom2dAPI
+return ffi_.U.oop.make_readonly(Geom2dAPI)

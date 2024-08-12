@@ -17,4 +17,4 @@ function Surface.eval(surface, u, v, n_u_deriv, n_v_deriv)
   return ffi_.NS.Naive_Surface_eval(surface, u, v, n_u_deriv, n_v_deriv, p), ArrayXYZ:take(p, n_p)
 end
 
-return Surface
+return ffi_.U.oop.make_readonly(Surface)

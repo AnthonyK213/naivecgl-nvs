@@ -14,4 +14,4 @@ function Tessellation.make_tetrasphere(center, radius, level)
       triangulation[0]
 end
 
-return Tessellation
+return ffi_.U.oop.make_readonly(Tessellation)

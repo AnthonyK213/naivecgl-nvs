@@ -70,4 +70,4 @@ function util.unwrap(code, ...)
   return ...
 end
 
-return util
+return ffi_.U.oop.make_readonly(util)

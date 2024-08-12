@@ -35,4 +35,4 @@ function NurbsSurface.create(poles, weights, knots_u, knots_v, mults_u, mults_v,
     degree_u, degree_v, nurbs_surface), nurbs_surface[0]
 end
 
-return NurbsSurface
+return ffi_.U.oop.make_readonly(NurbsSurface)

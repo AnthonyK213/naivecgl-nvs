@@ -13,4 +13,4 @@ setmetatable(enum, {
   end
 })
 
-return enum
+return ffi_.U.oop.make_readonly(enum)

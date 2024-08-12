@@ -20,4 +20,4 @@ function Geometry.is_valid(geometry)
   return ffi_.NS.Naive_Geometry_is_valid(geometry, is_valid), is_valid[0] == 1
 end
 
-return Geometry
+return ffi_.U.oop.make_readonly(Geometry)

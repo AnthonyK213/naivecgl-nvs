@@ -70,4 +70,4 @@ function Body.boolean(target, tools, options)
   return ffi_.NS.Naive_Body_boolean(target, tool_arr:size(), tool_arr:data(), ffi_.U.oop.get_data(options))
 end
 
-return Body
+return ffi_.U.oop.make_readonly(Body)

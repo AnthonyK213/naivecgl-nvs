@@ -86,4 +86,4 @@ function NurbsCurve.insert_knot(nurbs_curve, t, mult)
   return ffi_.NS.Naive_NurbsCurve_insert_knot(nurbs_curve, t, mult)
 end
 
-return NurbsCurve
+return ffi_.U.oop.make_readonly(NurbsCurve)

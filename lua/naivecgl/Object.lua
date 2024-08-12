@@ -20,4 +20,4 @@ function Object.delete(object)
   return ffi_.NS.Naive_Object_delete(object)
 end
 
-return Object
+return ffi_.U.oop.make_readonly(Object)

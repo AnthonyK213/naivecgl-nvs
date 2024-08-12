@@ -33,4 +33,4 @@ function Triangulation.create(vertices, triangles)
       triangulation[0]
 end
 
-return Triangulation
+return ffi_.U.oop.make_readonly(Triangulation)
