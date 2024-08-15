@@ -1,5 +1,7 @@
 local ffi_ = require("naivecgl.ffi_")
 
+local Logical_t = require("naivecgl.Logical_t")
+
 local Geometry = {}
 
 ---comment
@@ -17,7 +19,7 @@ end
 ---@return boolean is_valid
 function Geometry.is_valid(geometry)
   local is_valid = ffi_.F.new("Naive_Logical_t[1]", 0)
-  return ffi_.NS.Naive_Geometry_is_valid(geometry, is_valid), is_valid[0] == 1
+  return ffi_.NS.Naive_Geometry_is_valid(geometry, is_valid), is_valid[0] == Logical_t.true_
 end
 
 return ffi_.U.oop.make_readonly(Geometry)

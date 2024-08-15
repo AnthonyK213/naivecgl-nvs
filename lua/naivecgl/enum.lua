@@ -10,7 +10,11 @@ setmetatable(enum, {
         return ffi_.NS["Naive_" .. o.__ec__ .. "_" .. enum_name]
       end
     })
-  end
+  end,
+  __newindex = function(o, k, v)
+    error("Attempt to modify read-only structure!")
+  end,
+  __metatable = false,
 })
 
-return ffi_.U.oop.make_readonly(enum)
+return enum
