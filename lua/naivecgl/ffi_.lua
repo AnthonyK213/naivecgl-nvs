@@ -7,15 +7,15 @@ local ffi_ = {}
 ffi_.NS = nil
 
 ---Get absolute/relative path of the library.
----@param theName string The base name of the library.
+---@param name string The base name of the library.
 ---@return string
-local function get_dylib_path(theName)
-  local aPath
+local function get_dylib_path(name)
+  local path
 
   if jit.os == "Windows" then
-    aPath = theName .. ".dll"
+    path = name .. ".dll"
   elseif jit.os == "Linux" then
-    aPath = "lib" .. theName .. ".so"
+    path = "lib" .. name .. ".so"
   else
     error("Unsupported system!")
   end
@@ -23,11 +23,11 @@ local function get_dylib_path(theName)
   if Naivis then
     local ext = Naivis.NaiveApp.ExtensionMgr:Find("naivecgl-nvs")
     if ext and ext:IsValid() then
-      aPath = ext:Path() .. "/lib/" .. aPath
+      path = ext:Path() .. "/lib/" .. path
     end
   end
 
-  return aPath
+  return path
 end
 
 function ffi_:init()
@@ -117,13 +117,13 @@ typedef enum {
   Naive_Code_ok = 0,
   Naive_Code_err,
   Naive_Code_not_implemented,
-  Naive_Code_initialized = 1000,
-  Naive_Code_null_arg_address = 1500,
+  Naive_Code_initialized,
+  Naive_Code_null_arg_address,
   Naive_Code_invalid_value,
   Naive_Code_invalid_object,
   Naive_Code_invalid_tag,
   Naive_Code_still_referenced,
-  Naive_Code_no_intersection = 2000,
+  Naive_Code_no_intersection,
   Naive_Code_points_are_collinear,
   Naive_Code_points_are_coplanar,
   Naive_Code_index_out_of_range,
@@ -362,6 +362,10 @@ Naive_Code_t Naive_Body_boolean(
     const Naive_Body_t * /* tools */,
     const Naive_Body_boolean_o_t * /* options */
 );
+
+Naive_Code_t Naive_Body_create_solid_block(
+    double /* x */, double /* y */, double /* z */,
+    const Naive_Ax2_sf_t * /* basis_set */, Naive_Body_t *const /* body */);
 
 /* Naive_Class */
 

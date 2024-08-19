@@ -1,6 +1,7 @@
+local ffi_ = require("naivecgl.ffi_")
+
 local ArrayXY = require("naivecgl.ArrayXY")
 local XY_t = require("naivecgl.XY_t")
-local ffi_ = require("naivecgl.ffi_")
 
 local Geom2dAPI = {}
 

@@ -1,5 +1,6 @@
-local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local ffi_ = require("naivecgl.ffi_")
+
+local ArrayXYZ = require("naivecgl.ArrayXYZ")
 
 local Surface = {}
 

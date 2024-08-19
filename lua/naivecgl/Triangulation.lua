@@ -1,7 +1,10 @@
-local ArrayTriangle = require("naivecgl.ArrayTriangle")
-local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local common_ = require("naivecgl.common_")
 local ffi_ = require("naivecgl.ffi_")
+
+local Object = require("naivecgl.Object")
+
+local ArrayTriangle = require("naivecgl.ArrayTriangle")
+local ArrayXYZ = require("naivecgl.ArrayXYZ")
 
 local Triangulation = {}
 
@@ -28,7 +31,7 @@ end
 function Triangulation.create(vertices, triangles)
   local aVerts = ArrayXYZ:new(vertices)
   local aTris = ArrayTriangle:new(triangles)
-  local triangulation = ffi_.F.new("Naive_Triangulation_t[1]", 0)
+  local triangulation = ffi_.F.new("Naive_Triangulation_t[1]", Object.null)
   return ffi_.NS.Naive_Triangulation_create(aVerts:size(), aVerts, aTris:size(), aTris, 1, triangulation),
       triangulation[0]
 end

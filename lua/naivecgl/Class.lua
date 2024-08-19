@@ -19,7 +19,7 @@ end
 ---@return integer code
 ---@return boolean is_subclass
 function Class.is_subclass(may_be_subclass, class)
-  local is_subclass = ffi_.F.new("Naive_Logical_t[1]", 0)
+  local is_subclass = ffi_.F.new("Naive_Logical_t[1]", Logical_t.false_)
   return ffi_.NS.Naive_Class_is_subclass(may_be_subclass, class, is_subclass), is_subclass[0] == Logical_t.true_
 end
 

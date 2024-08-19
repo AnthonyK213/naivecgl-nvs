@@ -4,6 +4,9 @@ local naivecgl = {}
 
 ffi_:init()
 
+naivecgl._VERSION      = "naivecgl.lua 0.0.1"
+naivecgl._URL          = "https://github.com/AnthonyK213/naivecgl-nvs"
+
 naivecgl.Ax2_sf_t      = require("naivecgl.Ax2_sf_t")
 naivecgl.Body          = require("naivecgl.Body")
 naivecgl.Class         = require("naivecgl.Class")
@@ -18,10 +21,11 @@ naivecgl.Plane         = require("naivecgl.Plane")
 naivecgl.Plane_sf_t    = require("naivecgl.Plane_sf_t")
 naivecgl.Surface       = require("naivecgl.Surface")
 naivecgl.Tessellation  = require("naivecgl.Tessellation")
+naivecgl.Topol         = require("naivecgl.Topol")
 naivecgl.Triangle_t    = require("naivecgl.Triangle_t")
 naivecgl.Triangulation = require("naivecgl.Triangulation")
-naivecgl.XY_t          = require("naivecgl.XY_t")
 naivecgl.XYZ_t         = require("naivecgl.XYZ_t")
+naivecgl.XY_t          = require("naivecgl.XY_t")
 naivecgl.enum          = require("naivecgl.enum")
 naivecgl.util          = require("naivecgl.util")
 

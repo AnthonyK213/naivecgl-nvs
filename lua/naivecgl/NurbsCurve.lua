@@ -1,9 +1,10 @@
+local common_ = require("naivecgl.common_")
 local ffi_ = require("naivecgl.ffi_")
 
 local ArrayDouble = ffi_.U.array.ArrayDouble
 local ArrayInt32 = ffi_.U.array.ArrayInt32
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
-local common_ = require("naivecgl.common_")
+local Object = require("naivecgl.Object")
 
 local NurbsCurve = {}
 
@@ -61,7 +62,7 @@ function NurbsCurve.create(poles, weights, knots, mults, degree)
   local aWeights = ArrayDouble:new(weights)
   local aKnots = ArrayDouble:new(knots)
   local aMults = ArrayInt32:new(mults)
-  local nurbs_curve = ffi_.F.new("Naive_NurbsCurve_t[1]", 0)
+  local nurbs_curve = ffi_.F.new("Naive_NurbsCurve_t[1]", Object.null)
   return ffi_.NS.Naive_NurbsCurve_create(
     aPoles:size(), aPoles:data(), aWeights:size(), aWeights:data(),
     aKnots:size(), aKnots:data(), aMults:size(), aMults:data(),

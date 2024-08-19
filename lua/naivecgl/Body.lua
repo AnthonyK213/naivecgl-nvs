@@ -1,6 +1,8 @@
-local ArrayInt32 = require("ffi_util.array.ArrayInt32")
 local common_ = require("naivecgl.common_")
 local ffi_ = require("naivecgl.ffi_")
+
+local ArrayInt32 = require("ffi_util.array.ArrayInt32")
+local Object = require("naivecgl.Object")
 
 local Body = {}
 
@@ -11,6 +13,13 @@ Body.boolean_o_t = ffi_.U.oop.def_class("Naive_Body_boolean_o_t", {
     ["function"] = ffi_.NS.Naive_boolean_unite_c,
   }
 })
+
+---
+---@param field "function"
+---@param value any
+function Body.boolean_o_t:set(field, value)
+  ffi_.U.oop.set_field(self.m_data, field, value)
+end
 
 ---
 ---@param body integer
@@ -68,6 +77,18 @@ end
 function Body.boolean(target, tools, options)
   local tool_arr = ArrayInt32:new(tools)
   return ffi_.NS.Naive_Body_boolean(target, tool_arr:size(), tool_arr:data(), ffi_.U.oop.get_data(options))
+end
+
+---
+---@param x number
+---@param y number
+---@param z number
+---@param basis_set Naive.Ax2_sf_t
+---@return integer code
+---@return integer body
+function Body.create_solid_block(x, y, z, basis_set)
+  local body = ffi_.F.new("Naive_Body_t[1]", Object.null)
+  return ffi_.NS.Naive_Body_create_solid_block(x, y, z, ffi_.U.oop.get_data(basis_set), body), body[0]
 end
 
 return ffi_.U.oop.make_readonly(Body)

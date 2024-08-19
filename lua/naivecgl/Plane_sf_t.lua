@@ -1,5 +1,6 @@
-local Ax2_sf_t = require("naivecgl.Ax2_sf_t")
 local ffi_ = require("naivecgl.ffi_")
+
+local Ax2_sf_t = require("naivecgl.Ax2_sf_t")
 
 ---@class Naive.Plane_sf_t
 ---@field private m_type any

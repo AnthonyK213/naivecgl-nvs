@@ -1,6 +1,7 @@
+local ffi_ = require("naivecgl.ffi_")
+
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
 local XYZ_t = require("naivecgl.XYZ_t")
-local ffi_ = require("naivecgl.ffi_")
 
 local Curve = {}
 
