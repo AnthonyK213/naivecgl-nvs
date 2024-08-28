@@ -50,10 +50,10 @@ function NurbsCurve.ask_weights(nurbs_curve)
 end
 
 ---
----@param poles Naive.XYZ_t[]
----@param weights number[]
----@param knots number[]
----@param mults integer[]
+---@param poles Naive.XYZ_t[]|naivecgl.ArrayXYZ
+---@param weights number[]|ffi_util.array.ArrayDouble
+---@param knots number[]|ffi_util.array.ArrayDouble
+---@param mults integer[]|ffi_util.array.ArrayInt32
 ---@param degree integer
 ---@return integer code
 ---@return integer nurbs_curve

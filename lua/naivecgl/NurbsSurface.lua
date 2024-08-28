@@ -10,10 +10,10 @@ local NurbsSurface = {}
 ---
 ---@param poles Naive.XYZ_t[][]
 ---@param weights number[][]
----@param knots_u number[]
----@param knots_v number[]
----@param mults_u integer[]
----@param mults_v integer[]
+---@param knots_u number[]|ffi_util.array.ArrayDouble
+---@param knots_v number[]|ffi_util.array.ArrayDouble
+---@param mults_u integer[]|ffi_util.array.ArrayInt32
+---@param mults_v integer[]|ffi_util.array.ArrayInt32
 ---@param degree_u integer
 ---@param degree_v integer
 ---@return integer code

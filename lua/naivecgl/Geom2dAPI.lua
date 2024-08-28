@@ -6,7 +6,7 @@ local XY_t = require("naivecgl.XY_t")
 local Geom2dAPI = {}
 
 ---
----@param points Naive.XY_t[]
+---@param points Naive.XY_t[]|naivecgl.ArrayXY
 ---@param algo? any
 ---@return integer code
 ---@return integer[] convex_indices
@@ -29,7 +29,7 @@ function Geom2dAPI.convex_hull(points, algo)
 end
 
 ---
----@param points Naive.XY_t[]
+---@param points Naive.XY_t[]|naivecgl.ArrayXY
 ---@return integer code
 ---@return Naive.XY_t origin
 ---@return number radius

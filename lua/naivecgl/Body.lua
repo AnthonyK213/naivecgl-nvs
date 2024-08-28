@@ -71,7 +71,7 @@ end
 
 ---
 ---@param target integer
----@param tools integer[]
+---@param tools integer[]|ffi_util.array.ArrayInt32
 ---@param options Naive.Body.boolean_o_t
 ---@return integer code
 function Body.boolean(target, tools, options)
