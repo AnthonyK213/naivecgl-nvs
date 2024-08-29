@@ -50,8 +50,25 @@ end
 local function display_nurbs_curve(nurbs_curve, n_div)
   n_div = n_div or 64
 
-  local poles = unwrap(naivecgl.NurbsCurve.ask_poles(nurbs_curve))
-  local n_poles = poles:size()
+  local nurbs_curve_sf = unwrap(naivecgl.NurbsCurve.ask(nurbs_curve)) --[[@as Naive.NurbsCurve_sf_t]]
+  local vertex = nurbs_curve_sf:get_vertex()
+  local vertex_dim = nurbs_curve_sf:get_vertex_dim()
+  local poles = {}
+  local ptr = vertex:lower()
+  while ptr < vertex:upper() do
+    if vertex_dim == 3 then
+      local xyz = XYZ_t(vertex:value(ptr), vertex:value(ptr + 1), vertex:value(ptr + 2))
+      table.insert(poles, xyz)
+    elseif vertex_dim == 4 then
+      local w = vertex:value(ptr + 3)
+      local xyz = XYZ_t(vertex:value(ptr) / w, vertex:value(ptr + 1) / w, vertex:value(ptr + 2) / w)
+      table.insert(poles, xyz)
+    else
+      error("Nope!")
+    end
+    ptr = ptr + vertex_dim
+  end
+  local n_poles = #poles
   local t0, t1 = unwrap(naivecgl.Curve.ask_bound(nurbs_curve))
 
   local p_attr = Ghost_Attribute()
@@ -60,7 +77,7 @@ local function display_nurbs_curve(nurbs_curve, n_div)
   -- Draw control points.
 
   for i = 1, n_poles do
-    local aPole = poles:value(i)
+    local aPole = poles[i]
     local pole = BRepPrimAPI_MakeSphere(xyz_to_pnt(aPole), 0.3):Shape()
     __ghost__:AddShape(pole, p_attr, false)
   end
@@ -70,8 +87,8 @@ local function display_nurbs_curve(nurbs_curve, n_div)
   local cp_attr = Ghost_Attribute()
   cp_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_MAGENTA))
   for i = 1, n_poles - 1 do
-    local a_this = poles:value(i)
-    local a_next = poles:value(i + 1)
+    local a_this = poles[i]
+    local a_next = poles[i + 1]
     local cp = BRepBuilderAPI_MakeEdge(xyz_to_pnt(a_this), xyz_to_pnt(a_next)):Edge()
     __ghost__:AddShape(cp, cp_attr, false)
   end
@@ -92,7 +109,7 @@ local function display_nurbs_curve(nurbs_curve, n_div)
     end
   end
 
-  local knots = unwrap(naivecgl.NurbsCurve.ask_knots(nurbs_curve))
+  local knots, mults = unwrap(naivecgl.NurbsCurve.ask_knots(nurbs_curve))
 
   -- Draw knots.
   for i = 1, knots:size() do
@@ -115,7 +132,23 @@ end
 ---@return integer
 ---@return Geom_BSplineCurve?
 local function make_nurbs_curve(poles, weights, knots, mults, degree, check, n_div)
-  local nurbs_curve = unwrap(naivecgl.NurbsCurve.create(poles, weights, knots, mults, degree))
+  local nurbs_curve_sf = naivecgl.NurbsCurve_sf_t()
+  local vertex = {}
+  for i, pole in ipairs(poles) do
+    table.insert(vertex, pole:x() * weights[i])
+    table.insert(vertex, pole:y() * weights[i])
+    table.insert(vertex, pole:z() * weights[i])
+    table.insert(vertex, weights[i])
+  end
+
+  nurbs_curve_sf:set_degree(degree)
+  nurbs_curve_sf:set_vertex_dim(4)
+  nurbs_curve_sf:set_is_rational(true)
+  nurbs_curve_sf:set_vertex(vertex)
+  nurbs_curve_sf:set_knot(knots)
+  nurbs_curve_sf:set_knot_mult(mults)
+
+  local nurbs_curve = unwrap(naivecgl.NurbsCurve.create(nurbs_curve_sf))
   display_nurbs_curve(nurbs_curve, n_div)
 
   if check then
@@ -310,7 +343,7 @@ local function nurbs_curve_insert_knot()
 
   naivecgl.util.try(function()
     nurbs_curve = make_nurbs_curve(poles, weights, knots, mults, degree)
-    local _ = naivecgl.NurbsCurve.insert_knot(nurbs_curve, 0.7, 2)
+    local _ = naivecgl.NurbsCurve.add_knot(nurbs_curve, 0.7, 2)
     -- nurbs_curve:IncreaseMultiplicity(2, 2)
     -- __ghost__:Clear(false)
     display_nurbs_curve(nurbs_curve)
@@ -374,8 +407,8 @@ local function nurbs_curve_rtti()
 end
 
 draw_nurbs_curve()
-draw_nurbs_surface()
-nurbs_curve_insert_knot()
+-- draw_nurbs_surface()
+-- nurbs_curve_insert_knot()
 nurbs_curve_rtti()
 
 doc:UpdateView()

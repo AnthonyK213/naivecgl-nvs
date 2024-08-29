@@ -4,87 +4,54 @@ local ffi_ = require("naivecgl.ffi_")
 local ArrayDouble = ffi_.U.array.ArrayDouble
 local ArrayInt32 = ffi_.U.array.ArrayInt32
 local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local NurbsCurve_sf_t = require("naivecgl.NurbsCurve_sf_t")
 local Object = require("naivecgl.Object")
 
 local NurbsCurve = {}
 
 ---
 ---@param nurbs_curve integer
----@return integer code
----@return integer degree
-function NurbsCurve.ask_degree(nurbs_curve)
-  local degree = ffi_.F.new("int[1]", 0)
-  return ffi_.NS.Naive_NurbsCurve_ask_degree(nurbs_curve, degree), degree[0]
-end
-
----
----@param nurbs_curve integer
----@return integer code
----@return ffi_util.array.ArrayDouble
-function NurbsCurve.ask_knots(nurbs_curve)
-  return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_knots", ArrayDouble)
-end
-
----
----@param nurbs_curve integer
----@return integer code
----@return ffi_util.array.ArrayInt32 mults
-function NurbsCurve.ask_mults(nurbs_curve)
-  return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_mults", ArrayInt32)
-end
-
----
----@param nurbs_curve integer
----@return integer code
----@return naivecgl.ArrayXYZ poles
-function NurbsCurve.ask_poles(nurbs_curve)
-  return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_poles", ArrayXYZ)
-end
-
----
----@param nurbs_curve integer
----@return integer code
----@return ffi_util.array.ArrayDouble weights
-function NurbsCurve.ask_weights(nurbs_curve)
-  return common_.ask_array(nurbs_curve, "Naive_NurbsCurve_ask_weights", ArrayDouble)
-end
-
----
----@param poles Naive.XYZ_t[]|naivecgl.ArrayXYZ
----@param weights number[]|ffi_util.array.ArrayDouble
----@param knots number[]|ffi_util.array.ArrayDouble
----@param mults integer[]|ffi_util.array.ArrayInt32
----@param degree integer
----@return integer code
----@return integer nurbs_curve
-function NurbsCurve.create(poles, weights, knots, mults, degree)
-  local aPoles = ArrayXYZ:new(poles)
-  local aWeights = ArrayDouble:new(weights)
-  local aKnots = ArrayDouble:new(knots)
-  local aMults = ArrayInt32:new(mults)
-  local nurbs_curve = ffi_.F.new("Naive_NurbsCurve_t[1]", Object.null)
-  return ffi_.NS.Naive_NurbsCurve_create(
-    aPoles:size(), aPoles:data(), aWeights:size(), aWeights:data(),
-    aKnots:size(), aKnots:data(), aMults:size(), aMults:data(),
-    degree, nurbs_curve), nurbs_curve[0]
-end
-
----
----@param nurbs_curve integer
----@param index integer
----@param mult integer
----@return integer code
-function NurbsCurve.increase_multiplicity(nurbs_curve, index, mult)
-  return ffi_.NS.Naive_NurbsCurve_increase_multiplicity(nurbs_curve, index, mult)
-end
-
----
----@param nurbs_curve integer
 ---@param t number
 ---@param mult integer
 ---@return integer code
-function NurbsCurve.insert_knot(nurbs_curve, t, mult)
-  return ffi_.NS.Naive_NurbsCurve_insert_knot(nurbs_curve, t, mult)
+function NurbsCurve.add_knot(nurbs_curve, t, mult)
+  return ffi_.NS.Naive_NurbsCurve_add_knot(nurbs_curve, t, mult)
+end
+
+---
+---@param nurbs_curve integer
+---@return integer code
+---@return Naive.NurbsCurve_sf_t nurbs_curve_sf
+function NurbsCurve.ask(nurbs_curve)
+  local nurbs_curve_sf = NurbsCurve_sf_t()
+  return ffi_.NS.Naive_NurbsCurve_ask(nurbs_curve, ffi_.U.oop.get_data(nurbs_curve_sf)), nurbs_curve_sf:init_cache()
+end
+
+---
+---@param nurbs_curve integer
+---@return integer code
+---@return ffi_util.array.ArrayDouble knots
+---@return ffi_util.array.ArrayInt32 multiplicities
+function NurbsCurve.ask_knots(nurbs_curve)
+  local n_knots = ffi_.F.new("int[1]", 0)
+  local knots = ffi_.F.new("double*[1]")
+  local multiplicities = ffi_.F.new("int*[1]")
+  return ffi_.NS.Naive_NurbsCurve_ask_knots(nurbs_curve, n_knots, knots, multiplicities),
+      ArrayDouble:take(knots[0], n_knots[0], {
+        free = ffi_.NS.Naive_Memory_free,
+      }),
+      ArrayInt32:take(multiplicities[0], n_knots[0], {
+        free = ffi_.NS.Naive_Memory_free,
+      })
+end
+
+---
+---@param nurbs_curve_sf Naive.NurbsCurve_sf_t
+---@return integer code
+---@return integer nurbs_curve
+function NurbsCurve.create(nurbs_curve_sf)
+  local nurbs_curve = ffi_.F.new("Naive_NurbsCurve_t[1]", Object.null)
+  return ffi_.NS.Naive_NurbsCurve_create(ffi_.U.oop.get_data(nurbs_curve_sf), nurbs_curve), nurbs_curve[0]
 end
 
 return ffi_.U.oop.make_readonly(NurbsCurve)

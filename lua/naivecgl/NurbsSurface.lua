@@ -8,32 +8,12 @@ local Object = require("naivecgl.Object")
 local NurbsSurface = {}
 
 ---
----@param poles Naive.XYZ_t[][]
----@param weights number[][]
----@param knots_u number[]|ffi_util.array.ArrayDouble
----@param knots_v number[]|ffi_util.array.ArrayDouble
----@param mults_u integer[]|ffi_util.array.ArrayInt32
----@param mults_v integer[]|ffi_util.array.ArrayInt32
----@param degree_u integer
----@param degree_v integer
+---@param nurbs_surface_sf Naive.NurbsSurface_sf_t
 ---@return integer code
 ---@return integer nurbs_surface
-function NurbsSurface.create(poles, weights, knots_u, knots_v, mults_u, mults_v, degree_u, degree_v)
-  local nbUP, nbVP, aFlatPoles = ffi_.U.util.flatten_array2(poles)
-  local aPoles = ArrayXYZ:new(aFlatPoles)
-  local nbUW, nbVW, aFlatWeights = ffi_.U.util.flatten_array2(weights)
-  local aWeights = ArrayDouble:new(aFlatWeights)
-  local aUKnots = ArrayDouble:new(knots_u)
-  local aVKnots = ArrayDouble:new(knots_v)
-  local aUMults = ArrayInt32:new(mults_u)
-  local aVMults = ArrayInt32:new(mults_v)
+function NurbsSurface.create(nurbs_surface_sf)
   local nurbs_surface = ffi_.F.new("Naive_NurbsSurface_t[1]", Object.null)
-  return ffi_.NS.Naive_NurbsSurface_create(
-    nbUP, nbVP, aPoles:data(),
-    nbUW, nbVW, aWeights:data(),
-    aUKnots:size(), aUKnots:data(), aVKnots:size(), aVKnots:data(),
-    aUMults:size(), aUMults:data(), aVMults:size(), aVMults:data(),
-    degree_u, degree_v, nurbs_surface), nurbs_surface[0]
+  return ffi_.NS.Naive_NurbsSurface_create(ffi_.U.oop.get_data(nurbs_surface_sf), nurbs_surface), nurbs_surface[0]
 end
 
 return ffi_.U.oop.make_readonly(NurbsSurface)
