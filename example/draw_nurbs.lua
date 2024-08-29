@@ -242,10 +242,29 @@ local function draw_nurbs_surface(n_div)
   local nurbs_surface = naivecgl.Object.null
 
   naivecgl.util.try(function()
-    nurbs_surface = unwrap(naivecgl.NurbsSurface.create(
-      poles, weights,
-      knots_u, knots_v, mults_u, mults_v,
-      degree_u, degree_v))
+    local nurbs_surface_sf = naivecgl.NurbsSurface_sf_t()
+    local vertex = {}
+    for u = 1, #poles do
+      local vp = poles[u]
+      for v = 1, #vp do
+        table.insert(vertex, vp[v]:x() * weights[u][v])
+        table.insert(vertex, vp[v]:y() * weights[u][v])
+        table.insert(vertex, vp[v]:z() * weights[u][v])
+        table.insert(vertex, weights[u][v])
+      end
+    end
+
+    nurbs_surface_sf:set_u_degree(degree_u)
+    nurbs_surface_sf:set_v_degree(degree_v)
+    nurbs_surface_sf:set_vertex_dim(4)
+    nurbs_surface_sf:set_is_rational(true)
+    nurbs_surface_sf:set_vertex(vertex, #poles * 4, #poles[1] * 4)
+    nurbs_surface_sf:set_u_knot_mult(mults_u)
+    nurbs_surface_sf:set_v_knot_mult(mults_v)
+    nurbs_surface_sf:set_u_knot(knots_u)
+    nurbs_surface_sf:set_v_knot(knots_v)
+
+    nurbs_surface = unwrap(naivecgl.NurbsSurface.create(nurbs_surface_sf))
 
     local pAttr = Ghost_Attribute()
     pAttr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))
@@ -407,8 +426,8 @@ local function nurbs_curve_rtti()
 end
 
 draw_nurbs_curve()
--- draw_nurbs_surface()
--- nurbs_curve_insert_knot()
+draw_nurbs_surface()
+nurbs_curve_insert_knot()
 nurbs_curve_rtti()
 
 doc:UpdateView()

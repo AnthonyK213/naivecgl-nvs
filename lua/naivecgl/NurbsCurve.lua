@@ -24,7 +24,7 @@ end
 ---@return Naive.NurbsCurve_sf_t nurbs_curve_sf
 function NurbsCurve.ask(nurbs_curve)
   local nurbs_curve_sf = NurbsCurve_sf_t()
-  return ffi_.NS.Naive_NurbsCurve_ask(nurbs_curve, ffi_.U.oop.get_data(nurbs_curve_sf)), nurbs_curve_sf:init_cache()
+  return ffi_.NS.Naive_NurbsCurve_ask(nurbs_curve, ffi_.U.oop.get_data(nurbs_curve_sf)), nurbs_curve_sf:update_cache()
 end
 
 ---
@@ -36,13 +36,10 @@ function NurbsCurve.ask_knots(nurbs_curve)
   local n_knots = ffi_.F.new("int[1]", 0)
   local knots = ffi_.F.new("double*[1]")
   local multiplicities = ffi_.F.new("int*[1]")
+  local options = { free = ffi_.NS.Naive_Memory_free }
   return ffi_.NS.Naive_NurbsCurve_ask_knots(nurbs_curve, n_knots, knots, multiplicities),
-      ArrayDouble:take(knots[0], n_knots[0], {
-        free = ffi_.NS.Naive_Memory_free,
-      }),
-      ArrayInt32:take(multiplicities[0], n_knots[0], {
-        free = ffi_.NS.Naive_Memory_free,
-      })
+      ArrayDouble:take(knots[0], n_knots[0], options),
+      ArrayInt32:take(multiplicities[0], n_knots[0], options)
 end
 
 ---

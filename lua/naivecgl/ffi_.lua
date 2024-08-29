@@ -532,9 +532,9 @@ Naive_Code_t Naive_NurbsCurve_add_knot(Naive_NurbsCurve_t nurbs_curve,
  * @param nurbs_curve_sf [O] NURBS curve standard form.
  * @return Code.
  */
- Naive_Code_t
- Naive_NurbsCurve_ask(Naive_NurbsCurve_t nurbs_curve,
-                      Naive_NurbsCurve_sf_t *const nurbs_curve_sf);
+Naive_Code_t
+Naive_NurbsCurve_ask(Naive_NurbsCurve_t nurbs_curve,
+                     Naive_NurbsCurve_sf_t *const nurbs_curve_sf);
 
 /**
  * @brief This function returns the uniques knots and the multiplicities of a
@@ -585,6 +585,17 @@ Naive_Code_t Naive_NurbsCurve_remove_knot(
     Naive_NurbsCurve_t nurbs_curve, int index, int mult);
 
 /* Naive_NurbsSurface */
+
+/**
+ * @brief This function returns the standard form for a NURBS surface.
+ *
+ * @param nurbs_surface [I] NURBS surface.
+ * @param nurbs_surface_sf [O] NURBS surface standard form.
+ * @return Code.
+ */
+Naive_Code_t
+Naive_NurbsSurface_ask(Naive_NurbsSurface_t nurbs_surface,
+                       Naive_NurbsSurface_sf_t *const nurbs_surface_sf);
 
 /**
  * @brief This function creates a NURBS surface from the standard form.
