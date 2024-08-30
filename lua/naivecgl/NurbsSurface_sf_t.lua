@@ -223,7 +223,7 @@ end
 ---
 ---@return Naive.NurbsSurface_sf_t
 function NurbsSurface_sf_t:update_cache()
-  local n_vertices = self.m_data.n_u_vertices * self.m_data.n_v_vertices
+  local n_vertices = self.m_data.n_u_vertices * self.m_data.n_v_vertices / self.m_data.vertex_dim
   local options = { free = ffi_.NS.Naive_Memory_free }
   self._vertex = ArrayDouble:take(self.m_data.vertex, n_vertices, options)
   self._u_knot_mult = ArrayInt32:take(self.m_data.u_knot_mult, self.m_data.n_u_knots, options)
