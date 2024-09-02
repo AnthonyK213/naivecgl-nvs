@@ -29,11 +29,11 @@ local XYZ_t = A.instantiate(require("naivecgl.XYZ_t"))
 local XY_t = A.instantiate(require("naivecgl.XY_t"))
 
 local Array = {
-  Double = Double,
-  Int32 = Int32,
+  Double     = Double,
+  Int32      = Int32,
   Triangle_t = Triangle_t,
-  XYZ_t = XYZ_t,
-  XY_t = XY_t,
+  XYZ_t      = XYZ_t,
+  XY_t       = XY_t,
 }
 
 return ffi_.U.oop.make_readonly(Array)
