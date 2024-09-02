@@ -3,8 +3,8 @@ local ffi_ = require("naivecgl.ffi_")
 
 ---@class Naive.Ax2_sf_t
 ---@field private m_type any
----@field private m_data ffi.cdata*
----@operator call:Naive.Ax2_sf_t
+---@field private m_data any
+---@overload fun(location:Naive.XYZ_t,axis:Naive.XYZ_t,ref_direction:Naive.XYZ_t):Naive.Ax2_sf_t
 local Ax2_sf_t = ffi_.U.oop.def_class("Naive_Ax2_sf_t", {
   ctor = function(o, location, axis, ref_direction)
     local handle = ffi_.F.new(o.m_type, {

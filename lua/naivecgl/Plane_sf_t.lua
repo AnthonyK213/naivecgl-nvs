@@ -4,8 +4,8 @@ local Ax2_sf_t = require("naivecgl.Ax2_sf_t")
 
 ---@class Naive.Plane_sf_t
 ---@field private m_type any
----@field private m_data ffi.cdata*
----@operator call:Naive.Plane_sf_t
+---@field private m_data any
+---@overload fun(basis_set:Naive.Ax2_sf_t):Naive.Plane_sf_t
 local Plane_sf_t = ffi_.U.oop.def_class("Naive_Plane_sf_t", {
   ctor = function(o, basis_set)
     local handle = ffi_.F.new(o.m_type, {

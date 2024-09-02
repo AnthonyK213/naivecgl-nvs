@@ -1,6 +1,6 @@
 local ffi_ = require("naivecgl.ffi_")
 
-local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local Array = require("naivecgl.Array")
 local XYZ_t = require("naivecgl.XYZ_t")
 
 local Curve = {}
@@ -20,11 +20,11 @@ end
 ---@param t number
 ---@param n_deriv integer
 ---@return integer code
----@return naivecgl.ArrayXYZ result
+---@return Naive.Array.XYZ_t result
 function Curve.eval(curve, t, n_deriv)
   local n_p = n_deriv + 1
   local p = ffi_.F.new("Naive_Vec3d_t[?]", n_p)
-  return ffi_.NS.Naive_Curve_eval(curve, t, n_deriv, p), ArrayXYZ:take(p, n_p)
+  return ffi_.NS.Naive_Curve_eval(curve, t, n_deriv, p), Array.XYZ_t:take(p, n_p)
 end
 
 ---

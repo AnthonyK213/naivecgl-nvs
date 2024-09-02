@@ -1,8 +1,6 @@
 local ffi_ = require("naivecgl.ffi_")
 
-local ArrayDouble = ffi_.U.array.ArrayDouble
-local ArrayInt32 = ffi_.U.array.ArrayInt32
-local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local Array = require("naivecgl.Array")
 local NurbsSurface_sf_t = require("naivecgl.NurbsSurface_sf_t")
 local Object = require("naivecgl.Object")
 

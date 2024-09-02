@@ -1,9 +1,7 @@
 local common_ = require("naivecgl.common_")
 local ffi_ = require("naivecgl.ffi_")
 
-local ArrayDouble = ffi_.U.array.ArrayDouble
-local ArrayInt32 = ffi_.U.array.ArrayInt32
-local ArrayXYZ = require("naivecgl.ArrayXYZ")
+local Array = require("naivecgl.Array")
 local NurbsCurve_sf_t = require("naivecgl.NurbsCurve_sf_t")
 local Object = require("naivecgl.Object")
 
@@ -30,16 +28,16 @@ end
 ---
 ---@param nurbs_curve integer
 ---@return integer code
----@return ffi_util.array.ArrayDouble knots
----@return ffi_util.array.ArrayInt32 multiplicities
+---@return Naive.Array.Double knots
+---@return Naive.Array.Int32 multiplicities
 function NurbsCurve.ask_knots(nurbs_curve)
   local n_knots = ffi_.F.new("int[1]", 0)
   local knots = ffi_.F.new("double*[1]")
   local multiplicities = ffi_.F.new("int*[1]")
   local options = { free = ffi_.NS.Naive_Memory_free }
   return ffi_.NS.Naive_NurbsCurve_ask_knots(nurbs_curve, n_knots, knots, multiplicities),
-      ArrayDouble:take(knots[0], n_knots[0], options),
-      ArrayInt32:take(multiplicities[0], n_knots[0], options)
+      Array.Double:take(knots[0], n_knots[0], options),
+      Array.Int32:take(multiplicities[0], n_knots[0], options)
 end
 
 ---

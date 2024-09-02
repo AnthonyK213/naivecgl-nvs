@@ -2,14 +2,13 @@ local ffi_ = require("naivecgl.ffi_")
 
 local Logical_t = require("naivecgl.Logical_t")
 
-local ArrayDouble = ffi_.U.array.ArrayDouble
-local ArrayInt32 = ffi_.U.array.ArrayInt32
+local Array = require("naivecgl.Array")
 
 ---@class Naive.NurbsCurve_sf_t
 ---@field private m_data any
----@field private _vertex ffi_util.array.ArrayDouble
----@field private _knot ffi_util.array.ArrayDouble
----@field private _knot_mult ffi_util.array.ArrayInt32
+---@field private _vertex Naive.Array.Double
+---@field private _knot Naive.Array.Double
+---@field private _knot_mult Naive.Array.Int32
 ---@operator call:Naive.NurbsCurve_sf_t
 local NurbsCurve_sf_t = ffi_.U.oop.def_class("Naive_NurbsCurve_sf_t", {
   ctor = ffi_.U.oop.def_ctor {
@@ -46,7 +45,7 @@ function NurbsCurve_sf_t:get_is_rational()
 end
 
 ---
----@return ffi_util.array.ArrayDouble
+---@return Naive.Array.Double
 function NurbsCurve_sf_t:get_vertex()
   return self._vertex
 end
@@ -58,13 +57,13 @@ function NurbsCurve_sf_t:get_form()
 end
 
 ---
----@return ffi_util.array.ArrayInt32
+---@return Naive.Array.Int32
 function NurbsCurve_sf_t:get_knot_mult()
   return self._knot_mult
 end
 
 ---
----@return ffi_util.array.ArrayDouble
+---@return Naive.Array.Double
 function NurbsCurve_sf_t:get_knot()
   return self._knot
 end
@@ -100,9 +99,9 @@ function NurbsCurve_sf_t:set_is_rational(value)
 end
 
 ---
----@param value number[]|ffi_util.array.ArrayDouble
+---@param value number[]|Naive.Array.Double
 function NurbsCurve_sf_t:set_vertex(value)
-  self._vertex = ArrayDouble:new(value)
+  self._vertex = Array.Double:new(value)
   self.m_data.n_vertices = self._vertex:size()
   self.m_data.vertex = self._vertex:data()
 end
@@ -114,16 +113,16 @@ function NurbsCurve_sf_t:set_form(value)
 end
 
 ---
----@param value integer[]|ffi_util.array.ArrayInt32
+---@param value integer[]|Naive.Array.Int32
 function NurbsCurve_sf_t:set_knot_mult(value)
-  self._knot_mult = ArrayInt32:new(value)
+  self._knot_mult = Array.Int32:new(value)
   self.m_data.knot_mult = self._knot_mult:data()
 end
 
 ---
----@param value number[]|ffi_util.array.ArrayDouble
+---@param value number[]|Naive.Array.Double
 function NurbsCurve_sf_t:set_knot(value)
-  self._knot = ArrayDouble:new(value)
+  self._knot = Array.Double:new(value)
   self.m_data.n_knots = self._knot:size()
   self.m_data.knot = self._knot:data()
 end
@@ -145,9 +144,9 @@ end
 ---@return Naive.NurbsCurve_sf_t self
 function NurbsCurve_sf_t:update_cache()
   local options = { free = ffi_.NS.Naive_Memory_free }
-  self._vertex = ArrayDouble:take(self.m_data.vertex, self.m_data.n_vertices, options)
-  self._knot = ArrayDouble:take(self.m_data.knot, self.m_data.n_knots, options)
-  self._knot_mult = ArrayInt32:take(self.m_data.knot_mult, self.m_data.n_knots, options)
+  self._vertex = Array.Double:take(self.m_data.vertex, self.m_data.n_vertices, options)
+  self._knot = Array.Double:take(self.m_data.knot, self.m_data.n_knots, options)
+  self._knot_mult = Array.Int32:take(self.m_data.knot_mult, self.m_data.n_knots, options)
   return self
 end
 

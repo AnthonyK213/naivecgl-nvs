@@ -2,8 +2,8 @@ local ffi_ = require("naivecgl.ffi_")
 
 ---@class Naive.XY_t
 ---@field private m_type any
----@field private m_data ffi.cdata*
----@operator call:Naive.XY_t
+---@field private m_data any
+---@overload fun(x?:number,y?:number):Naive.XY_t
 local XY_t = ffi_.U.oop.def_class("Naive_XY_t", {
   ctor = function(o, x, y)
     local handle = ffi_.F.new(o.m_type, {
@@ -16,25 +16,25 @@ local XY_t = ffi_.U.oop.def_class("Naive_XY_t", {
 ---
 ---@return number
 function XY_t:x()
-  return ffi_.U.oop.get_field(self.m_data, "x")
+  return self.m_data.x
 end
 
 ---
 ---@return number
 function XY_t:y()
-  return ffi_.U.oop.get_field(self.m_data, "y")
+  return self.m_data.y
 end
 
 ---
 ---@param value number
 function XY_t:set_x(value)
-  ffi_.U.oop.set_field(self.m_data, "x", value)
+  self.m_data.x = value
 end
 
 ---
 ---@param value number
 function XY_t:set_y(value)
-  ffi_.U.oop.set_field(self.m_data, "y", value)
+  self.m_data.y = value
 end
 
 ---

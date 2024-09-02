@@ -31,6 +31,8 @@ naivecgl.Tessellation      = require("naivecgl.Tessellation")
 naivecgl.Topol             = require("naivecgl.Topol")
 naivecgl.Triangulation     = require("naivecgl.Triangulation")
 
+naivecgl.Array             = require("naivecgl.Array")
+
 naivecgl.enum              = require("naivecgl.enum")
 naivecgl.util              = require("naivecgl.util")
 
