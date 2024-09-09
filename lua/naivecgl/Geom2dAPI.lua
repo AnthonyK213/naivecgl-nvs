@@ -5,11 +5,11 @@ local XY_t = require("naivecgl.XY_t")
 
 local Geom2dAPI = {}
 
----
----@param points Naive.XY_t[]|Naive.Array.XY_t
----@param algo? any
----@return integer code
----@return integer[] convex_indices
+---This function calculates the convex hull of a set of 2d points.
+---@param points Naive.XY_t[]|Naive.Array.XY_t Points.
+---@param algo? any Algorithm.
+---@return integer code Code.
+---@return integer[] convex_indices Index of vertex in the convex hull.
 function Geom2dAPI.convex_hull(points, algo)
   local point_array = Array.XY_t:new(points)
   local n_convex_points = ffi_.F.new("int[1]", 0)
@@ -28,11 +28,11 @@ function Geom2dAPI.convex_hull(points, algo)
   return code, result
 end
 
----
----@param points Naive.XY_t[]|Naive.Array.XY_t
----@return integer code
----@return Naive.XY_t origin
----@return number radius
+---This function calculates the enclosing disc of a set of 2d 2d points.
+---@param points Naive.XY_t[]|Naive.Array.XY_t Points.
+---@return integer code Code.
+---@return Naive.XY_t origin The origin of the disc.
+---@return number radius The radius of the disc.
 function Geom2dAPI.enclosing_disc(points)
   local aPoints = Array.XY_t:new(points)
   local o = ffi_.F.new("Naive_Pnt2d_t")
