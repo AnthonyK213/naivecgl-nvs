@@ -142,11 +142,9 @@ local function make_nurbs_curve(poles, weights, knots, mults, degree, check, n_d
   end
 
   nurbs_curve_sf:set_degree(degree)
-  nurbs_curve_sf:set_vertex_dim(4)
   nurbs_curve_sf:set_is_rational(true)
-  nurbs_curve_sf:set_vertex(vertex)
-  nurbs_curve_sf:set_knot(knots)
-  nurbs_curve_sf:set_knot_mult(mults)
+  nurbs_curve_sf:set_vertex(vertex, 4)
+  nurbs_curve_sf:set_knot(knots, mults)
 
   local nurbs_curve = unwrap(naivecgl.NurbsCurve.create(nurbs_curve_sf))
   display_nurbs_curve(nurbs_curve, n_div)
@@ -256,13 +254,10 @@ local function draw_nurbs_surface(n_div)
 
     nurbs_surface_sf:set_u_degree(degree_u)
     nurbs_surface_sf:set_v_degree(degree_v)
-    nurbs_surface_sf:set_vertex_dim(4)
     nurbs_surface_sf:set_is_rational(true)
-    nurbs_surface_sf:set_vertex(vertex, #poles * 4, #poles[1] * 4)
-    nurbs_surface_sf:set_u_knot_mult(mults_u)
-    nurbs_surface_sf:set_v_knot_mult(mults_v)
-    nurbs_surface_sf:set_u_knot(knots_u)
-    nurbs_surface_sf:set_v_knot(knots_v)
+    nurbs_surface_sf:set_vertex(vertex, #poles, #poles[1], 4)
+    nurbs_surface_sf:set_u_knot(knots_u, mults_u)
+    nurbs_surface_sf:set_v_knot(knots_v, mults_v)
 
     nurbs_surface = unwrap(naivecgl.NurbsSurface.create(nurbs_surface_sf))
 

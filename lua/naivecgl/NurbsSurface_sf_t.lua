@@ -60,13 +60,21 @@ function NurbsSurface_sf_t:get_is_rational()
 end
 
 ---
+---@return integer
+function NurbsSurface_sf_t:get_n_u_vertices()
+  return self.m_data.n_u_vertices
+end
+
+---
+---@return integer
+function NurbsSurface_sf_t:get_n_v_vertices()
+  return self.m_data.n_v_vertices
+end
+
+---
 ---@return Naive.Array.Double
----@return integer
----@return integer
 function NurbsSurface_sf_t:get_vertex()
-  local n_u_vertices = self.m_data.n_u_vertices
-  local n_v_vertices = self.m_data.n_v_vertices
-  return self._vertex, n_u_vertices, n_v_vertices
+  return self._vertex
 end
 
 ---
@@ -136,23 +144,19 @@ function NurbsSurface_sf_t:set_v_degree(value)
 end
 
 ---
----@param value integer
-function NurbsSurface_sf_t:set_vertex_dim(value)
-  self.m_data.vertex_dim = value
-end
-
----
 ---@param value boolean
 function NurbsSurface_sf_t:set_is_rational(value)
   self.m_data.is_rational = Logical_t.from_bool(value)
 end
 
 ---
----@param value number[]|Naive.Array.Double
+---@param vertex number[]|Naive.Array.Double
 ---@param n_u_vertices integer
 ---@param n_v_vertices integer
-function NurbsSurface_sf_t:set_vertex(value, n_u_vertices, n_v_vertices)
-  self._vertex = Array.Double:new(value)
+---@param vertex_dim integer
+function NurbsSurface_sf_t:set_vertex(vertex, n_u_vertices, n_v_vertices, vertex_dim)
+  self._vertex = Array.Double:new(vertex)
+  self.m_data.vertex_dim = vertex_dim
   self.m_data.n_u_vertices = n_u_vertices
   self.m_data.n_v_vertices = n_v_vertices
   self.m_data.vertex = self._vertex:data()
@@ -165,33 +169,25 @@ function NurbsSurface_sf_t:set_form(value)
 end
 
 ---
----@param value integer[]|Naive.Array.Int32
-function NurbsSurface_sf_t:set_u_knot_mult(value)
-  self._u_knot_mult = Array.Int32:new(value)
+---@param u_knot number[]|Naive.Array.Double
+---@param u_knot_mult integer[]|Naive.Array.Int32
+function NurbsSurface_sf_t:set_u_knot(u_knot, u_knot_mult)
+  self._u_knot = Array.Double:new(u_knot)
+  self._u_knot_mult = Array.Int32:new(u_knot_mult)
+  self.m_data.n_u_knots = self._u_knot:size()
+  self.m_data.u_knot = self._u_knot:data()
   self.m_data.u_knot_mult = self._u_knot_mult:data()
 end
 
 ---
----@param value integer[]|Naive.Array.Int32
-function NurbsSurface_sf_t:set_v_knot_mult(value)
-  self._v_knot_mult = Array.Int32:new(value)
-  self.m_data.v_knot_mult = self._v_knot_mult:data()
-end
-
----
----@param value number[]|Naive.Array.Double
-function NurbsSurface_sf_t:set_u_knot(value)
-  self._u_knot = Array.Double:new(value)
-  self.m_data.n_u_knots = self._u_knot:size()
-  self.m_data.u_knot = self._u_knot:data()
-end
-
----
----@param value number[]|Naive.Array.Double
-function NurbsSurface_sf_t:set_v_knot(value)
-  self._v_knot = Array.Double:new(value)
+---@param v_knot number[]|Naive.Array.Double
+---@param v_knot_mult integer[]|Naive.Array.Int32
+function NurbsSurface_sf_t:set_v_knot(v_knot, v_knot_mult)
+  self._v_knot = Array.Double:new(v_knot)
+  self._v_knot_mult = Array.Int32:new(v_knot_mult)
   self.m_data.n_v_knots = self._v_knot:size()
   self.m_data.v_knot = self._v_knot:data()
+  self.m_data.v_knot_mult = self._v_knot_mult:data()
 end
 
 ---
@@ -222,9 +218,11 @@ end
 ---
 ---@return Naive.NurbsSurface_sf_t
 function NurbsSurface_sf_t:update_cache()
-  local n_vertices = self.m_data.n_u_vertices * self.m_data.n_v_vertices / self.m_data.vertex_dim
   local options = { free = ffi_.NS.Naive_Memory_free }
-  self._vertex = Array.Double:take(self.m_data.vertex, n_vertices, options)
+  self._vertex = Array.Double:take(
+    self.m_data.vertex,
+    self.m_data.n_u_vertices * self.m_data.n_v_vertices * self.m_data.vertex_dim,
+    options)
   self._u_knot_mult = Array.Int32:take(self.m_data.u_knot_mult, self.m_data.n_u_knots, options)
   self._v_knot_mult = Array.Int32:take(self.m_data.v_knot_mult, self.m_data.n_v_knots, options)
   self._u_knot = Array.Double:take(self.m_data.u_knot, self.m_data.n_u_knots, options)

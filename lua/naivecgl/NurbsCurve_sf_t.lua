@@ -45,6 +45,12 @@ function NurbsCurve_sf_t:get_is_rational()
 end
 
 ---
+---@return integer
+function NurbsCurve_sf_t:get_n_vertices()
+  return self.m_data.n_vertices
+end
+
+---
 ---@return Naive.Array.Double
 function NurbsCurve_sf_t:get_vertex()
   return self._vertex
@@ -87,22 +93,18 @@ function NurbsCurve_sf_t:set_degree(value)
 end
 
 ---
----@param value integer
-function NurbsCurve_sf_t:set_vertex_dim(value)
-  self.m_data.vertex_dim = value
-end
-
----
 ---@param value boolean
 function NurbsCurve_sf_t:set_is_rational(value)
   self.m_data.is_rational = Logical_t.from_bool(value)
 end
 
 ---
----@param value number[]|Naive.Array.Double
-function NurbsCurve_sf_t:set_vertex(value)
-  self._vertex = Array.Double:new(value)
-  self.m_data.n_vertices = self._vertex:size()
+---@param vertex number[]|Naive.Array.Double
+---@param vertex_dim integer
+function NurbsCurve_sf_t:set_vertex(vertex, vertex_dim)
+  self._vertex = Array.Double:new(vertex)
+  self.m_data.vertex_dim = vertex_dim
+  self.m_data.n_vertices = math.floor(self._vertex:size() / vertex_dim)
   self.m_data.vertex = self._vertex:data()
 end
 
@@ -113,18 +115,14 @@ function NurbsCurve_sf_t:set_form(value)
 end
 
 ---
----@param value integer[]|Naive.Array.Int32
-function NurbsCurve_sf_t:set_knot_mult(value)
-  self._knot_mult = Array.Int32:new(value)
-  self.m_data.knot_mult = self._knot_mult:data()
-end
-
----
----@param value number[]|Naive.Array.Double
-function NurbsCurve_sf_t:set_knot(value)
-  self._knot = Array.Double:new(value)
+---@param knot number[]|Naive.Array.Double
+---@param knot_mult integer[]|Naive.Array.Int32
+function NurbsCurve_sf_t:set_knot(knot, knot_mult)
+  self._knot = Array.Double:new(knot)
+  self._knot_mult = Array.Int32:new(knot_mult)
   self.m_data.n_knots = self._knot:size()
   self.m_data.knot = self._knot:data()
+  self.m_data.knot_mult = self._knot_mult:data()
 end
 
 ---
@@ -144,7 +142,7 @@ end
 ---@return Naive.NurbsCurve_sf_t self
 function NurbsCurve_sf_t:update_cache()
   local options = { free = ffi_.NS.Naive_Memory_free }
-  self._vertex = Array.Double:take(self.m_data.vertex, self.m_data.n_vertices, options)
+  self._vertex = Array.Double:take(self.m_data.vertex, self.m_data.n_vertices * self.m_data.vertex_dim, options)
   self._knot = Array.Double:take(self.m_data.knot, self.m_data.n_knots, options)
   self._knot_mult = Array.Int32:take(self.m_data.knot_mult, self.m_data.n_knots, options)
   return self
