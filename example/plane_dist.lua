@@ -2,6 +2,7 @@ local naivecgl = require("naivecgl")
 
 local Ax2_sf_t = naivecgl.Ax2_sf_t
 local Plane_sf_t = naivecgl.Plane_sf_t
+local XY_t = naivecgl.XY_t
 local XYZ_t = naivecgl.XYZ_t
 
 local BRepBuilderAPI_MakeVertex = nvs.occ.BRepBuilderAPI.BRepBuilderAPI_MakeVertex
@@ -29,11 +30,11 @@ naivecgl.util.try(function()
 
   local code, p0, p1, p2, p3, p4
 
-  code, p0 = naivecgl.Surface.eval(plane, 0, 0, 0, 0)
-  code, p1 = naivecgl.Surface.eval(plane, -10, -10, 0, 0)
-  code, p2 = naivecgl.Surface.eval(plane, 10, -10, 0, 0)
-  code, p3 = naivecgl.Surface.eval(plane, 10, 10, 0, 0)
-  code, p4 = naivecgl.Surface.eval(plane, -10, 10, 0, 0)
+  code, p0 = naivecgl.Surface.eval(plane, XY_t(0, 0), 0, 0)
+  code, p1 = naivecgl.Surface.eval(plane, XY_t(-10, -10), 0, 0)
+  code, p2 = naivecgl.Surface.eval(plane, XY_t(10, -10), 0, 0)
+  code, p3 = naivecgl.Surface.eval(plane, XY_t(10, 10), 0, 0)
+  code, p4 = naivecgl.Surface.eval(plane, XY_t(-10, 10), 0, 0)
 
   local points = {
     gp_Pnt(p0:value(1):x(), p0:value(1):y(), p0:value(1):z()),

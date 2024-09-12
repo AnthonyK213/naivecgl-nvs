@@ -56,6 +56,23 @@ end
 ---
 ---@param body integer
 ---@return integer code
+---@return integer parent
+function Body.ask_parent(body)
+  local parent = ffi_.F.new("Naive_Body_t[1]", Object.null)
+  return ffi_.NS.Naive_Body_ask_parent(body, parent), parent[0]
+end
+
+---
+---@param body integer
+---@return integer code
+---@return Naive.Array.Int32 regions
+function Body.ask_regions(body)
+  return common_.ask_array(body, "Naive_Body_ask_regions", Array.Int32)
+end
+
+---
+---@param body integer
+---@return integer code
 ---@return Naive.Array.Int32 shells
 function Body.ask_shells(body)
   return common_.ask_array(body, "Naive_Body_ask_shells", Array.Int32)

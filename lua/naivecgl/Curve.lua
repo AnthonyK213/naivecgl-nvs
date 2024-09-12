@@ -10,9 +10,9 @@ local Curve = {}
 ---@return integer code
 ---@return number t0
 ---@return number t1
-function Curve.ask_bound(curve)
+function Curve.ask_interval(curve)
   local aBound = ffi_.F.new("Naive_Interval_t", { 0, 0 })
-  return ffi_.NS.Naive_Curve_ask_bound(curve, aBound), aBound.t0, aBound.t1
+  return ffi_.NS.Naive_Curve_ask_interval(curve, aBound), aBound.t0, aBound.t1
 end
 
 ---
