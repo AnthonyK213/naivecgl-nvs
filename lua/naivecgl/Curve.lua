@@ -1,6 +1,7 @@
 local ffi_ = require("naivecgl.ffi_")
 
 local Array = require("naivecgl.Array")
+local Interval_t = require("naivecgl.Interval_t")
 local XYZ_t = require("naivecgl.XYZ_t")
 
 local Curve = {}
@@ -8,11 +9,10 @@ local Curve = {}
 ---
 ---@param curve integer
 ---@return integer code
----@return number t0
----@return number t1
+---@return Naive.Interval_t interval
 function Curve.ask_interval(curve)
-  local aBound = ffi_.F.new("Naive_Interval_t", { 0, 0 })
-  return ffi_.NS.Naive_Curve_ask_interval(curve, aBound), aBound.t0, aBound.t1
+  local interval = Interval_t()
+  return ffi_.NS.Naive_Curve_ask_interval(curve, ffi_.U.oop.get_data(interval)), interval
 end
 
 ---

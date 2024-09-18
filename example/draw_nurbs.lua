@@ -70,7 +70,8 @@ local function display_nurbs_curve(nurbs_curve, n_div)
     ptr = ptr + vertex_dim
   end
   local n_poles = #poles
-  local t0, t1 = unwrap(naivecgl.Curve.ask_interval(nurbs_curve))
+  local interval = unwrap(naivecgl.Curve.ask_interval(nurbs_curve)) --[[@as Naive.Interval_t]]
+  local t0, t1 = interval:t0(), interval:t1()
 
   local p_attr = Ghost_Attribute()
   p_attr:SetColor(Quantity_Color(nvs.occ.Quantity.Quantity_NameOfColor.Quantity_NOC_CYAN))

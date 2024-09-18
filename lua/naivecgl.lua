@@ -11,6 +11,7 @@ naivecgl.Logical_t         = require("naivecgl.Logical_t")
 naivecgl.Triangle_t        = require("naivecgl.Triangle_t")
 naivecgl.XYZ_t             = require("naivecgl.XYZ_t")
 naivecgl.XY_t              = require("naivecgl.XY_t")
+naivecgl.Interval_t        = require("naivecgl.Interval_t")
 
 naivecgl.Ax2_sf_t          = require("naivecgl.Ax2_sf_t")
 naivecgl.NurbsCurve_sf_t   = require("naivecgl.NurbsCurve_sf_t")
