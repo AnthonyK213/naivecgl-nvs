@@ -18,13 +18,13 @@ end
 ---
 ---@param curve integer
 ---@param t number
----@param n_deriv integer
+---@param n_derivs integer
 ---@return integer code
 ---@return Naive.Array.XYZ_t result
-function Curve.eval(curve, t, n_deriv)
-  local n_p = n_deriv + 1
+function Curve.eval(curve, t, n_derivs)
+  local n_p = n_derivs + 1
   local p = ffi_.F.new("Naive_Vec3d_t[?]", n_p)
-  return ffi_.NS.Naive_Curve_eval(curve, t, n_deriv, p), Array.XYZ_t:take(p, n_p)
+  return ffi_.NS.Naive_Curve_eval(curve, t, n_derivs, p), Array.XYZ_t:take(p, n_p)
 end
 
 ---
