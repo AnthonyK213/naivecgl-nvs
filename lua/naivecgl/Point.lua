@@ -10,8 +10,8 @@ local Point = {}
 ---@return integer code
 ---@return Naive.Point_sf_t point_sf
 function Point.ask(point)
-  local point_sf = ffi_.F.new(ffi_.U.oop.get_type(Point_sf_t))
-  return ffi_.NS.Naive_Point_ask(point, point_sf), ffi_.U.oop.take(Point_sf_t, point_sf)
+  local point_sf = Point_sf_t()
+  return ffi_.NS.Naive_Point_ask(point, ffi_.U.oop.get_data(point_sf)), point_sf
 end
 
 ---
